@@ -1,0 +1,460 @@
+<meta charset="utf-8">
+<title>Análisis Coalición Canaria</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+
+:root{
+  --bg:#f6f4ef; --panel:#fffdf8; --fg:#1e2328; --muted:#5d666e; --line:#d9d4c8;
+  --accent:#1f6f78; --on-accent:#ffffff; --accent-soft:#d5e8ea; --warn:#9a5b13; --warn-bg:#f7ead6;
+  --edge:#1f6f78; --node:#2b3a42; --node-text:#ffffff; --hl:#c2410c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181b; --panel:#1b2125; --fg:#e8e6df; --muted:#9aa3a9; --line:#2f373c;
+    --accent:#58b8c3; --on-accent:#0b1a1d; --accent-soft:#1f3a3f; --warn:#e3b36b; --warn-bg:#33291a;
+    --edge:#58b8c3; --node:#cfd8dc; --node-text:#14181b; --hl:#fb923c; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181b; --panel:#1b2125; --fg:#e8e6df; --muted:#9aa3a9; --line:#2f373c;
+  --accent:#58b8c3; --on-accent:#0b1a1d; --accent-soft:#1f3a3f; --warn:#e3b36b; --warn-bg:#33291a;
+  --edge:#58b8c3; --node:#cfd8dc; --node-text:#14181b; --hl:#fb923c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:"Space Grotesk",Inter,system-ui,sans-serif;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:30px;font-weight:600}
+h2{font-size:21px;font-weight:600}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{color:var(--muted);max-width:68ch}
+.kicker{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.note{background:var(--warn-bg);color:var(--fg);border-left:4px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:14px}
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:5px;min-width:0}
+.ctl label,.ctl .lab{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+select,input[type=range]{font:inherit;color:var(--fg);accent-color:var(--accent)}
+.stack{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+select{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;max-width:100%}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;background:var(--bg);color:var(--fg);border:0;padding:7px 12px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+svg{display:block;max-width:100%;height:auto}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:6px 8px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.small{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:12px;color:var(--muted)}
+.bar{display:inline-block;height:7px;border-radius:4px;background:var(--accent);vertical-align:middle}
+.hm td.cell{text-align:center;font-variant-numeric:tabular-nums;font-size:12px;padding:6px 3px;min-width:46px;border:1px solid var(--bg)}
+.hm th.rot{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;padding:6px 2px;text-align:left}
+.hm th.rowh{text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--fg);white-space:nowrap}
+.edge-hit{cursor:pointer}
+.node{cursor:pointer}
+ul.clean{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+footer{font-size:12.5px;color:var(--muted)}
+.enl{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+a.chip-link{display:inline-block;color:var(--on-accent);background:var(--accent);text-decoration:none;font-weight:600;font-size:13px;padding:7px 13px;border-radius:999px}
+a.chip-link:hover{filter:brightness(1.08)}
+a.chip-link:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+
+/* ===== Portada: bloque 1 ===== */
+.top{display:flex;flex-direction:column;gap:12px}
+.top h1{font-size:34px}
+.jump{display:flex;flex-wrap:wrap;gap:8px 10px}
+.jump a{color:var(--fg);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:13.5px;background:var(--panel)}
+.jump a:hover{border-color:var(--accent);color:var(--accent)}
+.jump a:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.bloque{display:flex;flex-direction:column;gap:16px;min-width:0}
+.bloque-cab{display:flex;gap:14px;align-items:flex-start;padding-top:8px}
+.num{flex:none;width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font:600 16px "Space Grotesk",Inter,sans-serif;margin-top:2px}
+.resumen-ctl{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-start}
+details.umbrales{flex:1 1 320px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+details.umbrales summary{cursor:pointer;font-size:13.5px;font-weight:500;color:var(--fg)}
+details.umbrales summary:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.umbrales-in{display:flex;flex-direction:column;gap:10px;padding-top:10px}
+.umbral-fila{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:13px}
+.umbral-fila label{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.umbral-fila input{width:68px;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 7px;font-variant-numeric:tabular-nums}
+.umbral-fila button{font:inherit;font-size:12.5px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:14px}
+.pc{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0;cursor:pointer;text-align:left;font:inherit;color:inherit;text-decoration:none;transition:border-color .15s,transform .15s,box-shadow .15s}
+.pc-cab{display:flex;gap:12px;align-items:center;padding-right:34px;min-width:0}
+.pc-nom{min-width:0}
+.av{flex:none;width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:50% 16%;background:var(--accent-soft);box-shadow:0 0 0 1px var(--line);display:block}
+.av-ini{display:grid;place-items:center;font:600 18px "Space Grotesk",Inter,sans-serif;color:var(--accent)}
+#pop{position:fixed;z-index:60;left:0;top:0;width:380px;max-width:calc(100vw - 24px);background:var(--panel);color:var(--fg);border:1px solid var(--accent);border-radius:12px;padding:14px 16px;box-shadow:0 12px 36px rgba(0,0,0,.24);display:none;pointer-events:none;font-size:13.5px;line-height:1.4}
+#pop.on{display:block;animation:popin .14s ease-out}
+@keyframes popin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+#pop .pop-t{font:600 11px Inter,sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+#pop ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:q}
+#pop li>div{min-width:0;overflow-wrap:anywhere}
+#pop li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;counter-increment:q}
+#pop li::before{content:counter(q);width:20px;height:20px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:600 12px/20px "Space Grotesk",Inter,sans-serif;text-align:center}
+#pop li em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);margin-top:1px}
+#pop .pop-cta{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-weight:600;color:var(--accent)}
+#pop .pop-nota{font-size:11.5px;color:var(--muted);margin-top:4px}
+@media (hover:none){#pop{display:none}}
+@media (prefers-reduced-motion:reduce){#pop.on{animation:none}}
+.pc:hover,.pc:focus-visible,.pc.sel{border-color:var(--accent);box-shadow:0 4px 18px color-mix(in srgb,var(--accent) 16%,transparent)}
+.pc:hover{transform:translateY(-2px)}
+.pc:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.pc.sel{border-width:2px;padding:15px}
+.pc h3{font-size:18px;line-height:1.25}
+.pc .oficial{font-size:12px;color:var(--muted);margin-top:2px}
+.pc dl{margin:0;display:grid;gap:8px}
+.pc dt{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.pc dd{margin:1px 0 0;font-size:14px;overflow-wrap:anywhere}
+.pc .titulo{font-weight:600}
+.pc .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.pc .score{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pc .score b{font:600 32px/1 "Space Grotesk",Inter,sans-serif;font-variant-numeric:tabular-nums}
+.pc .score span{font-size:12px;color:var(--muted)}
+.pc .ideo{display:inline-block;border:1px solid var(--accent);color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:2px 11px;font-size:13px;font-weight:600}
+.eje{position:relative;height:40px;margin-top:2px}
+.eje .barra{position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--line),var(--accent-soft) 50%,var(--line))}
+.eje .cero{position:absolute;left:50%;top:6px;height:16px;width:1px;background:var(--muted)}
+.eje .zona{position:absolute;top:9px;height:10px;border-left:1px dashed var(--muted);opacity:.6}
+.eje .punto{position:absolute;top:6px;width:16px;height:16px;border-radius:50%;background:var(--accent);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--accent);transform:translateX(-50%)}
+.eje .ext{position:absolute;top:22px;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pc .lang{position:absolute;top:14px;right:14px;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 7px}
+.nota-rile{max-width:90ch}
+@media (prefers-reduced-motion:reduce){.pc,.pc:hover{transition:none;transform:none}}
+@media (max-width:520px){.top h1{font-size:28px}.rejilla{grid-template-columns:minmax(0,1fr)}}
+
+/* ===== Ficha de partido ===== */
+.barra-sup{position:sticky;top:max(8px,env(safe-area-inset-top,0px));z-index:40;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 10px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.barra-sup .in{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;justify-content:space-between}
+.volver{display:inline-flex;align-items:center;gap:8px;color:var(--on-accent);background:var(--accent);text-decoration:none;font-weight:600;font-size:14px;padding:8px 14px;border-radius:999px}
+.volver:hover{filter:brightness(1.08)}
+.volver:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.migas{font-size:13px;color:var(--muted)}
+.pc.grande{cursor:default;padding:22px;gap:16px}
+.pc.grande:hover{transform:none;border-color:var(--line);box-shadow:none}
+.pc.grande h1{font-size:30px}
+.pc.grande .av{width:112px;height:112px}
+.pc.grande .av-ini{font-size:34px}
+.pc.grande .pc-cab{gap:18px;padding-right:44px}
+.pc.grande dl{grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));gap:16px 28px}
+.pc.grande dd{font-size:15px}
+.pc.grande .score b{font-size:40px}
+.credito{font-size:12px;color:var(--muted);max-width:90ch;overflow-wrap:anywhere}
+.credito a{color:var(--accent)}
+.herr{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+.herr button,.herr a.chip{font:inherit;font-size:13.5px;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;text-decoration:none}
+.herr button:hover,.herr a.chip:hover{border-color:var(--accent);color:var(--accent)}
+.herr button:focus-visible,.herr a.chip:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.herr .sep{flex:1}
+details.sec{background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:0}
+details.sec>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:16px 18px}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary:focus-visible{outline:2px solid var(--hl);outline-offset:-2px;border-radius:12px}
+details.sec>summary .nm{width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:600 14px/28px "Space Grotesk",Inter,sans-serif;text-align:center}
+details.sec>summary .st{font:600 18px/1.25 "Space Grotesk",Inter,sans-serif}
+details.sec>summary .sr{grid-column:2;font-size:13px;color:var(--muted);font-weight:400}
+details.sec>summary .fl{grid-column:3;grid-row:1/span 2;width:10px;height:10px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s;margin-right:4px}
+details.sec[open]>summary .fl{transform:rotate(-135deg)}
+details.sec[open]>summary{border-bottom:1px solid var(--line)}
+.sb{padding:18px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.sb h3{font-size:15px}
+.bloq{display:flex;flex-direction:column;gap:10px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:12px}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;background:var(--bg);min-width:0}
+.kpi b{font:600 24px/1.1 "Space Grotesk",Inter,sans-serif;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12.5px;color:var(--muted)}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar-r{display:grid;grid-template-columns:minmax(120px,36%) minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13.5px}
+.bar-r .bl{min-width:0;overflow-wrap:anywhere}
+.bar-r .bt{height:10px;background:var(--bg);border-radius:0 5px 5px 0;position:relative;min-width:0}
+.bar-r .bt i{display:block;height:100%;background:var(--accent);border-radius:0 4px 4px 0;min-width:2px}
+.bar-r .bv{font-variant-numeric:tabular-nums;color:var(--fg);white-space:nowrap;font-size:13px}
+.bar-r.cero .bt i{min-width:0;width:0!important}
+.bar-r.cero .bl,.bar-r.cero .bv{color:var(--muted)}
+@media (max-width:560px){.bar-r{grid-template-columns:minmax(0,1fr) auto}.bar-r .bt{grid-column:1/-1;order:3}}
+.lista{display:flex;flex-direction:column;gap:0;margin:0;padding:0;list-style:none}
+.lista>li{padding:12px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
+.lista>li:last-child{border-bottom:0}
+.lista .tt{font-weight:600;font-size:14.5px}
+.lista .ds{font-size:13.5px;color:var(--fg)}
+.lista .mt{display:flex;flex-wrap:wrap;gap:4px 8px;font-size:12px;color:var(--muted)}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:11.5px;color:var(--muted);background:var(--bg)}
+.tag.alta{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+details.mas{border-top:1px dashed var(--line);padding-top:10px}
+details.mas>summary{cursor:pointer;color:var(--accent);font-size:13.5px;font-weight:600;padding:2px 0}
+details.mas>summary:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.concl{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.concl h3{font-size:16px}
+.concl ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;box-shadow:0 0 0 1px var(--line)}
+.dos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:22px}
+.dos>*{min-width:0}
+.vec{display:flex;flex-wrap:wrap;gap:8px}
+.vec a{border:1px solid var(--line);border-radius:10px;padding:8px 12px;text-decoration:none;color:var(--fg);background:var(--bg);display:flex;flex-direction:column;gap:2px;font-size:13px}
+.vec a:hover{border-color:var(--accent)}
+.vec a b{font-size:14.5px}
+.vec a:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.glos{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+@media (prefers-reduced-motion:reduce){details.sec>summary .fl{transition:none}}
+@media (max-width:520px){.pc.grande h1{font-size:25px}.pc.grande .av{width:84px;height:84px}details.sec>summary{padding:14px}.sb{padding:14px}}
+
+</style>
+
+<div class="wrap">
+  <nav class="barra-sup" aria-label="Navegación">
+    <div class="in">
+      <a class="volver" id="volver" href="portada_analisis.html#resumen">← Volver al análisis general</a>
+      <span class="migas">Análisis general › <b id="miga"></b></span>
+    </div>
+  </nav>
+
+  <header id="cab"></header>
+
+  <div class="herr" role="toolbar" aria-label="Apartados">
+    <button type="button" id="b-abrir">Expandir todos los apartados</button>
+    <button type="button" id="b-cerrar">Contraer todos</button>
+    <span class="sep"></span>
+    <a class="chip" id="grafo-enl" href="portada_analisis.html#comparativa">Ver en el grafo de afinidad →</a>
+  </div>
+
+  <div id="secs" style="display:flex;flex-direction:column;gap:12px"></div>
+
+  <footer>
+    Descripción neutral del contenido del programa: no valora si las propuestas son buenas, viables o deseables.
+    Cifras calculadas por script a partir del etiquetado de agentes sobre el texto del PDF; las limitaciones de cada análisis figuran en los apartados.
+  </footer>
+</div>
+
+<script>
+/* ===== Tarjeta de partido compartida (portada y ficha) ===== */
+const EJE = 50;
+const ETIQ = ["Izquierda", "Centro-izquierda", "Centro", "Centro-derecha", "Derecha"];
+const POR_DEFECTO = [-30, -10, 10, 30];
+const fS = (x, d = 2) => (x < 0 ? "−" : (x > 0 ? "+" : "")) + Math.abs(x).toLocaleString("es-ES", {minimumFractionDigits: d, maximumFractionDigits: d});
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c])); }
+function umbralValido(v) { return Array.isArray(v) && v.length === 4 && v.every(Number.isFinite) && v[0] < v[1] && v[1] < v[2] && v[2] < v[3]; }
+function leerUmbral() {
+  try {
+    const m = new URLSearchParams(location.search).get("u");
+    if (m) { const v = m.split(",").map(Number); if (umbralValido(v)) return v; }
+  } catch (e) {}
+  return POR_DEFECTO.slice();
+}
+function banda(v, u) {
+  if (v <= u[0]) return 0;
+  if (v < u[1]) return 1;
+  if (v <= u[2]) return 2;
+  if (v < u[3]) return 3;
+  return 4;
+}
+function qsU(u) { return "?u=" + u.join(","); }
+
+function tarjetaHTML(p, u, grande) {
+  const b = banda(p.rile, u);
+  const cl = v => Math.max(-EJE, Math.min(EJE, v));
+  const x = (cl(p.rile) + EJE) / (2 * EJE) * 100;
+  const zonas = u.map(t => `<i class="zona" style="left:${(cl(t) + EJE) / (2 * EJE) * 100}%"></i>`).join("");
+  const ini = p.candidato.split(" ").map(w => w[0]).slice(0, 2).join("");
+  const lado = grande ? 112 : 56;
+  const av = p.foto
+    ? `<img class="av" src="${p.foto}" style="object-position:${p.fpos || "50% 12%"}" alt="Fotografía de archivo de ${esc(p.candidato)}" width="${lado}" height="${lado}">`
+    : `<span class="av av-ini" aria-hidden="true">${esc(ini)}</span>`;
+  const T = grande ? "h1" : "h3";
+  return `
+    <span class="lang" title="Idioma del programa">${esc(p.idioma)}</span>
+    <div class="pc-cab">${av}<div class="pc-nom"><${T}>${esc(p.partido)}</${T}>${p.partido_oficial !== p.partido ? `<div class="oficial">${esc(p.partido_oficial)}</div>` : ""}</div></div>
+    <dl>
+      <div><dt>Cabeza de lista</dt><dd>${esc(p.candidato)}</dd></div>
+      <div><dt>Programa electoral</dt><dd><span class="titulo">${esc(p.titulo)}</span><div class="sub">${esc(p.subtitulo)}</div></dd></div>
+      <div><dt>Puntuación MARPOR (RILE)</dt>
+        <dd><div class="score"><b>${fS(p.rile)}</b><span>de −100 a +100</span></div>
+        <div class="eje" aria-hidden="true"><div class="barra"></div>${zonas}<div class="cero"></div><div class="punto" style="left:${x}%"></div>
+          <span class="ext" style="left:0">−${EJE}</span><span class="ext" style="left:50%;transform:translateX(-50%)">0</span><span class="ext" style="right:0">+${EJE}</span></div></dd></div>
+      <div><dt>Ideología según la escala</dt><dd><span class="ideo">${ETIQ[b]}</span></dd></div>
+    </dl>`;
+}
+
+</script>
+<script>
+const F = {"r":{"prefijo":"coalicion","partido":"Coalición Canaria","partido_oficial":"Coalición Canaria","candidato":"Cristina Valido","titulo":"Defiende Canarias","subtitulo":"Bases del programa electoral de Coalición Canaria y Municipalistas Primero Canarias","idioma":"es","rile":-17.76,"foto":"data:image/jpeg;base64,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","fpos":"50% 22%","propuestas":[{"texto":"Reclamar el cumplimiento del convenio de infraestructuras turísticas y programas estatales de renovación de destinos maduros.","pagina":12,"compromiso":"firme","id":"M0061"},{"texto":"Exigir que España defienda ante la UE adaptaciones de las políticas climáticas de aviación y navegación que reconozcan la dependencia canaria del avión y del barco.","pagina":16,"compromiso":"firme","id":"M0112"},{"texto":"Reclamar un convenio estatal de diez años con financiación suficiente para ejecutar el Tren de Gran Canaria y tratamiento equivalente para los proyectos ferroviarios de Tenerife.","pagina":18,"compromiso":"firme","id":"M0140"},{"texto":"Apertura de un debate y búsqueda de consenso en el marco estatal para una política común de protección y bienestar de la infancia (ayudas a la crianza, vivienda, violencia digital, salud…","pagina":9,"compromiso":"exploratorio","id":"M0030"},{"texto":"Evaluación y actualización de los instrumentos del REF para atraer inversión productiva e innovadora que genere empleo estable.","pagina":12,"compromiso":"exploratorio","id":"M0062"}],"credito":{"fichero":"Cristina_Valido_2023_(cropped).jpg","autor":"Canal 10 televisión 📺 (youtube)","licencia":"CC BY 3.0","pagina":"https://commons.wikimedia.org/wiki/File:Cristina_Valido_2023_(cropped).jpg"}},"programa":{"palabras":9114,"paginas_analizadas":21,"paginas_pdf":23,"parrafos":169,"frases":526,"palabras_pagina":434.0,"saliencia":[{"tema":"economia_y_empleo","pct":12.41},{"tema":"organizacion_territorial","pct":8.38},{"tema":"transporte_e_infraestructuras","pct":7.71},{"tema":"vivienda_y_urbanismo","pct":6.17},{"tema":"union_europea_y_ambito_internacional","pct":5.62},{"tema":"medio_ambiente_y_clima","pct":5.08}],"limites":["Se detectaron 13 capítulos falsos y la p. 22 es una lista de candidaturas."]},"visual":{"fotos":12,"ilustraciones":0,"paginas":23,"color":"amarillo","hex":"#f1cf42","paleta":[{"color":"amarillo","hex":"#f1cf42","pct":61.55},{"color":"blanco","hex":"#efeedf","pct":22.5},{"color":"turquesa","hex":"#1296b3","pct":11.92},{"color":"gris","hex":"#c0beb2","pct":3.21},{"color":"verde","hex":"#86b77e","pct":0.69}],"evid":{"foto":1,"firma":0,"rotulo":0},"politicos":[{"nombre":"Cristina Valido","fotos":1,"paginas":[22],"candidato":true},{"nombre":"Teodoro Sosa","fotos":1,"paginas":[22],"candidato":false},{"nombre":"María Fernández","fotos":1,"paginas":[22],"candidato":false},{"nombre":"Jonathan de Felipe","fotos":1,"paginas":[22],"candidato":false},{"nombre":"Elizabeth Santana","fotos":1,"paginas":[22],"candidato":false},{"nombre":"Samuel Henríquez","fotos":1,"paginas":[22],"candidato":false},{"nombre":"Alfonso Cabello","fotos":1,"paginas":[22],"candidato":false},{"nombre":"Patricia León","fotos":1,"paginas":[22],"candidato":false},{"nombre":"Víctor Chinea","fotos":1,"paginas":[22],"candidato":false},{"nombre":"Nuria Cabrera","fotos":1,"paginas":[22],"candidato":false},{"nombre":"Daisy Villalba","fotos":1,"paginas":[22],"candidato":false},{"nombre":"Miriam Perestelo","fotos":1,"paginas":[22],"candidato":false}]},"diag":{"n":6,"pct":4.6,"lineas":38.55,"responsables":[{"k":"otro","n":3,"pct":43.29},{"k":"administracion_otro_nivel","n":1,"pct":29.58},{"k":"sin_atribucion","n":2,"pct":27.13}],"emociones":[],"lista":[{"titulo":"Obligaciones estatales pendientes con Canarias","descripcion":"El programa señala que gobiernos de distinto signo han dejado obligaciones pendientes con Canarias (REF, transporte, La Palma) y que se incumple lo pactado.","imp":"alta","pct":29.58,"tema":"organizacion_territorial","resp":["administracion_otro_nivel"],"emo":null},{"titulo":"Costes derivados de la lejanía y la insularidad","descripcion":"El programa describe Canarias como un territorio alejado, dividido en ocho islas y dependiente del avión y del barco, lo que genera costes y dificultades propios en servicios, abastecimiento y actividad económica.","imp":"alta","pct":26.54,"tema":"organizacion_territorial","resp":["otro"],"emo":null},{"titulo":"Acceso a la vivienda y coste de la vida","descripcion":"El programa señala que el acceso a un hogar y el coste de la vida condicionan la posibilidad de quedarse en las islas, y que falta vivienda asequible y capacidad de ordenar el crecimiento.","imp":"alta","pct":16.99,"tema":"vivienda_y_urbanismo","resp":["sin_atribucion"],"emo":null},{"titulo":"Polarización de la política estatal","descripcion":"El programa describe una política estatal encerrada en dos bloques cada vez más enfrentados y marcada por la polarización y la radicalización, frente a lo cual plantea que Canarias necesita fuerza propia.","imp":"media","pct":12.37,"tema":"administracion_publica_y_regeneracion_institucional","resp":["otro"],"emo":null},{"titulo":"Presión migratoria en la ruta atlántica","descripcion":"El programa señala que la posición de Canarias en la ruta atlántica exige una respuesta permanente del Estado y la Unión Europea, y menciona la sobrecarga de los territorios de llegada.","imp":"media","pct":10.14,"tema":"migracion_y_asilo","resp":["sin_atribucion"],"emo":null},{"titulo":"División del nacionalismo canario","descripcion":"El programa describe que la división del nacionalismo canario ha tenido un coste y que los desencuentros han limitado la capacidad de trabajar juntos por objetivos compartidos.","imp":"baja","pct":4.38,"tema":"otro","resp":["otro"],"emo":null}]},"obj":{"n":25,"pct":94.69,"sin_corr":16,"familias":[{"k":"izquierda","n":5,"pct":21.0},{"k":"centro_izquierda","n":3,"pct":11.7},{"k":"centro_derecha","n":1,"pct":4.71},{"k":"derecha","n":1,"pct":4.28}],"lista":[{"titulo":"Representación canaria unida con voz propia","descripcion":"El programa se propone contar con una representación nacionalista canaria unida, con libertad de decisión y capacidad de influir en las Cortes Generales, que escuche en las islas y rinda cuentas.","imp":"media","pct":11.2,"tema":"organizacion_territorial","fam":[],"caps":7},{"titulo":"Reconocimiento y financiación de la singularidad canaria","descripcion":"El programa se propone que el reconocimiento de la singularidad canaria (lejanía, insularidad, ultraperiferia, REF) se traduzca en financiación suficiente y estable y en mejores condiciones de vida.","imp":"media","pct":8.94,"tema":"fiscalidad_y_presupuestos","fam":[],"caps":5},{"titulo":"Transición energética con suministro seguro y precios razonables","descripcion":"El programa se propone una transición energética que garantice el suministro, reduzca la dependencia exterior y dé acceso a energía limpia a precio razonable, con renovables, almacenamiento, redes y transporte electrificado.","imp":"media","pct":7.41,"tema":"energia","fam":["izquierda"],"caps":3},{"titulo":"Cumplimiento de los compromisos del Estado con Canarias","descripcion":"El programa se propone que las obligaciones del Estado con Canarias (Agenda Canaria, propuesta de Decreto Canarias, inversiones y convenios) se cumplan con financiación y plazos, y rendir cuentas de ello.","imp":"media","pct":6.44,"tema":"organizacion_territorial","fam":[],"caps":8},{"titulo":"Máximo autogobierno y capacidad de decisión de Canarias","descripcion":"El programa se propone que Canarias decida sobre más asuntos, con los medios para hacerlo, completando los traspasos del Estatuto, reforzando la relación bilateral con el Estado y oponiéndose a la recentralización.","imp":"media","pct":6.11,"tema":"organizacion_territorial","fam":[],"caps":7},{"titulo":"Acceso a una vivienda asequible en Canarias","descripcion":"El programa se propone que la población canaria pueda pagar una vivienda, con más vivienda asequible, alquiler estable, límites a la compra por extranjeros y a la vivienda vacacional y capacidad para ordenar el crecimiento.","imp":"media","pct":6.08,"tema":"vivienda_y_urbanismo","fam":["izquierda"],"caps":4},{"titulo":"Cuidado del territorio y adaptación al cambio climático","descripcion":"El programa se propone cuidar el territorio, la biodiversidad y el litoral, y preparar las islas, sus equipamientos y su población para el calor, la erosión y las emergencias.","imp":"media","pct":5.36,"tema":"medio_ambiente_y_clima","fam":["izquierda"],"caps":6},{"titulo":"Voz de Canarias en la Unión Europea y la acción exterior","descripcion":"El programa se propone que España defienda los intereses de Canarias como región ultraperiférica ante la Unión Europea y que las instituciones canarias participen en los asuntos exteriores que afectan a las islas.","imp":"baja","pct":4.84,"tema":"union_europea_y_ambito_internacional","fam":[],"caps":4},{"titulo":"Conectividad y transporte accesibles entre islas y con el exterior","descripcion":"El programa se propone mejorar la movilidad y las conexiones entre islas y con el exterior, con descuentos, rutas esenciales, transporte público y compensación del transporte de mercancías.","imp":"baja","pct":4.83,"tema":"transporte_e_infraestructuras","fam":[],"caps":3},{"titulo":"Empleo estable, mejores salarios y apoyo a pequeñas empresas","descripcion":"El programa se propone que la riqueza generada llegue a más hogares mediante empleo estable, mejores salarios y apoyo a autónomos, pequeñas empresas, cooperativas y productores.","imp":"baja","pct":4.71,"tema":"economia_y_empleo","fam":["centro_derecha","centro_izquierda"],"caps":4},{"titulo":"Política migratoria solidaria con responsabilidad estatal y europea","descripcion":"El programa se propone una respuesta permanente del Estado y de la Unión Europea a la migración por la ruta atlántica, con medios suficientes, solidaridad entre territorios, protección de menores y convivencia.","imp":"baja","pct":4.28,"tema":"migracion_y_asilo","fam":["derecha"],"caps":4},{"titulo":"Servicios públicos y cuidados con financiación suficiente","descripcion":"El programa se propone que sanidad, educación y cuidados cuenten con financiación suficiente y una gestión evaluada, para que la atención no dependa de la isla ni de la situación económica.","imp":"baja","pct":4.09,"tema":"sanidad","fam":["centro_izquierda"],"caps":4},{"titulo":"Diversificar la economía con investigación y economía azul","descripcion":"El programa se propone aprovechar las capacidades de Canarias para diversificar su economía y reducir la dependencia exterior mediante investigación, economía azul, REF productivo y proyectos piloto.","imp":"baja","pct":3.87,"tema":"ciencia_y_universidades","fam":[],"caps":3},{"titulo":"Protección social y reducción de la pobreza infantil","descripcion":"El programa se propone que la pobreza no determine el futuro de un niño y que las ayudas cubran a quien las necesita, con apoyo a la infancia, las familias y las personas con discapacidad.","imp":"baja","pct":2.9,"tema":"proteccion_social_y_pensiones","fam":["centro_izquierda"],"caps":2},{"titulo":"Sector primario fuerte y soberanía alimentaria","descripcion":"El programa se propone reforzar el sector primario canario (agricultura, ganadería y pesca), mantener el POSEI, compensar sobrecostes y asegurar el relevo generacional.","imp":"baja","pct":2.85,"tema":"agricultura_y_mundo_rural","fam":[],"caps":2},{"titulo":"Identidad, cultura y vínculos de Canarias dentro y fuera de las islas","descripcion":"El programa se propone dar a la identidad, la lengua, el patrimonio y la creación canarios un lugar propio y apoyar la cultura, el deporte y a los canarios del exterior.","imp":"baja","pct":2.82,"tema":"cultura_y_deporte","fam":[],"caps":3},{"titulo":"Opciones reales para que la juventud se quede, se forme y vuelva","descripcion":"El programa se propone que la juventud pueda quedarse, salir a formarse y volver, con formación conectada al empleo, becas y un plan de empleo juvenil.","imp":"baja","pct":2.77,"tema":"educacion","fam":[],"caps":4},{"titulo":"Igualdad de oportunidades entre las ocho islas","descripcion":"El programa se propone que la doble insularidad y la distancia no recorten derechos ni oportunidades, atendiendo a cada isla y a los municipios rurales.","imp":"baja","pct":1.89,"tema":"organizacion_territorial","fam":[],"caps":3},{"titulo":"Agua suficiente y gestión del ciclo hídrico","descripcion":"El programa se propone asegurar el abastecimiento de agua, mejorar la depuración y la reutilización y reducir el coste energético del agua en las islas.","imp":"baja","pct":1.88,"tema":"medio_ambiente_y_clima","fam":[],"caps":2},{"titulo":"Municipios y cabildos con recursos y competencias","descripcion":"El programa se propone que ayuntamientos y cabildos dispongan de recursos suficientes y competencias claras, y que sus propuestas pesen en la acción común.","imp":"baja","pct":1.79,"tema":"organizacion_territorial","fam":[],"caps":3},{"titulo":"Economía circular y tratamiento de residuos en las islas","descripcion":"El programa se propone facilitar el transporte y tratamiento de residuos en Canarias y crear actividad industrial a partir de la reutilización y el reciclaje.","imp":"baja","pct":1.26,"tema":"medio_ambiente_y_clima","fam":["izquierda"],"caps":1},{"titulo":"Recuperación de La Palma tras la erupción","descripcion":"El programa se propone mantener la prioridad de la recuperación de La Palma, con financiación sostenida, continuidad de los planes de empleo y atención a la población afectada.","imp":"baja","pct":1.23,"tema":"otro","fam":[],"caps":2},{"titulo":"Turismo que respete los límites y beneficie a la población","descripcion":"El programa se propone que el turismo respete los límites de las islas y contribuya más al bienestar de la población, con renovación de destinos maduros.","imp":"baja","pct":0.91,"tema":"economia_y_empleo","fam":[],"caps":2},{"titulo":"Sociedad democrática con igualdad de derechos y respeto a las diferencias","descripcion":"El programa se compromete con una sociedad democrática con igualdad entre mujeres y hombres, protección frente a la violencia de género y respeto a las diferencias.","imp":"baja","pct":0.88,"tema":"igualdad_y_derechos_civiles","fam":["izquierda"],"caps":2},{"titulo":"Contener el coste de la vida","descripcion":"El programa se propone que el coste de la vida no reste oportunidades a quienes quieren quedarse en las islas, con compensaciones por insularidad que se evalúen por su efecto en los precios.","imp":"baja","pct":0.64,"tema":"economia_y_empleo","fam":[],"caps":2}]},"med":{"n":187,"pct":60.1,"firmes_verif":30,"cond":17,"niveles":[{"k":"firme","n":100,"pct":53.48},{"k":"promocional","n":84,"pct":44.92},{"k":"exploratorio","n":3,"pct":1.6},{"k":"declarativo","n":0,"pct":0.0}],"especif":[{"k":"verificable","n":53,"pct":28.34},{"k":"parcial","n":112,"pct":59.89},{"k":"vaga","n":22,"pct":11.76}],"tipos":[{"k":"regulatoria","n":51,"pct":27.27},{"k":"distributiva","n":99,"pct":52.94},{"k":"redistributiva","n":1,"pct":0.53},{"k":"organizativa_institucional","n":22,"pct":11.76},{"k":"simbolica_o_declarativa","n":11,"pct":5.88},{"k":"mixta","n":2,"pct":1.07},{"k":"no_determinable","n":1,"pct":0.53}],"temas":[{"k":"transporte_e_infraestructuras","n":22,"pct":11.76},{"k":"economia_y_empleo","n":16,"pct":8.56},{"k":"vivienda_y_urbanismo","n":16,"pct":8.56},{"k":"organizacion_territorial","n":16,"pct":8.56},{"k":"medio_ambiente_y_clima","n":14,"pct":7.49},{"k":"fiscalidad_y_presupuestos","n":14,"pct":7.49}],"top":[{"texto":"Reclamar el cumplimiento del convenio de infraestructuras turísticas y programas estatales de renovación de destinos maduros.","nivel":"firme","espec":"verificable","tema":"economia_y_empleo","pagina":12,"lineas":6.0},{"texto":"Exigir que España defienda ante la UE adaptaciones de las políticas climáticas de aviación y navegación que reconozcan la dependencia canaria del avión y del barco.","nivel":"firme","espec":"parcial","tema":"union_europea_y_ambito_internacional","pagina":16,"lineas":6.0},{"texto":"Reclamar un convenio estatal de diez años con financiación suficiente para ejecutar el Tren de Gran Canaria y tratamiento equivalente para los proyectos ferroviarios de Tenerife.","nivel":"firme","espec":"verificable","tema":"transporte_e_infraestructuras","pagina":18,"lineas":6.0},{"texto":"Apertura de un debate y búsqueda de consenso en el marco estatal para una política común de protección y bienestar de la infancia (ayudas a la crianza, vivienda, violencia digital, salud mental, educación, menores migrantes,…","nivel":"exploratorio","espec":"parcial","tema":"familia_e_infancia","pagina":9,"lineas":5.54},{"texto":"Evaluación y actualización de los instrumentos del REF para atraer inversión productiva e innovadora que genere empleo estable.","nivel":"exploratorio","espec":"parcial","tema":"fiscalidad_y_presupuestos","pagina":12,"lineas":5.23},{"texto":"Corrección de las reglas estatales para que el transporte entre islas de residuos destinados a reutilización, reciclaje o aprovechamiento no quede en desventaja frente a su envío a puertos peninsulares, con compensaciones al…","nivel":"firme","espec":"parcial","tema":"medio_ambiente_y_clima","pagina":13,"lineas":5.1},{"texto":"Exigir un sistema de financiación autonómica suficiente y estable que reconozca el coste de prestar servicios en un archipiélago y considere población efectiva, fragmentación, pobreza y envejecimiento.","nivel":"firme","espec":"parcial","tema":"fiscalidad_y_presupuestos","pagina":8,"lineas":5.0},{"texto":"Reclamar financiación estatal suficiente para aplicar el Pacto de Estado contra la violencia de género en todas las islas, reforzar la prevención y proteger a las víctimas.","nivel":"firme","espec":"verificable","tema":"igualdad_y_derechos_civiles","pagina":10,"lineas":5.0}]},"marpor":{"cuasi":518,"c000":3,"pp":0.19,"cortadas":2.38,"mediana":17.0,"dominios":[{"nombre":"Relaciones Exteriores","n":23,"pct":4.44},{"nombre":"Libertad y Democracia","n":25,"pct":4.83},{"nombre":"Sistema Político","n":148,"pct":28.57},{"nombre":"Economía","n":97,"pct":18.73},{"nombre":"Estado del Bienestar y Calidad de Vida","n":175,"pct":33.78},{"nombre":"Tejido Social","n":18,"pct":3.47},{"nombre":"Grupos Sociales","n":29,"pct":5.6},{"nombre":"Sin categoría","n":3,"pct":0.58}],"cats":[{"cod":"301","nombre":"Descentralización","n":142,"pct":27.41},{"cod":"411","nombre":"Tecnología e Infraestructura","n":68,"pct":13.13},{"cod":"504","nombre":"Expansión del Estado del Bienestar","n":68,"pct":13.13},{"cod":"501","nombre":"Protección Medioambiental","n":61,"pct":11.78},{"cod":"503","nombre":"Igualdad y Justicia Social","n":26,"pct":5.02},{"cod":"202","nombre":"Democracia","n":17,"pct":3.28},{"cod":"402","nombre":"Incentivos Económicos","n":16,"pct":3.09},{"cod":"703","nombre":"Agricultura y Agricultores","n":15,"pct":2.9}],"rile":{"valor":-17.76,"der":7.14,"izq":24.9,"fuera":67.95,"pder":[{"cod":"402","nombre":"Incentivos Económicos","pct":3.09},{"cod":"606","nombre":"Espíritu Cívico y Armonía Social","pct":1.74},{"cod":"201","nombre":"Libertad y Derechos Humanos","pct":1.54},{"cod":"605","nombre":"Ley y Orden","pct":0.77}],"pizq":[{"cod":"504","nombre":"Expansión del Estado del Bienestar","pct":13.13},{"cod":"202","nombre":"Democracia","pct":3.28},{"cod":"701","nombre":"Grupos Laborales: Positivo","pct":2.51},{"cod":"107","nombre":"Internacionalismo: Positivo","pct":2.12},{"cod":"506","nombre":"Expansión de la Educación","pct":1.93}]},"sens":[{"v":"agregada_por_categoria","rile":-17.76},{"v":"estricta_sobre_cuasifrases_con_categoria","rile":-17.86},{"v":"estricta_por_lineas","rile":-15.92}],"vec":{"con301":[{"pref":"pnv","nombre":"PNV","sim":0.9231,"lo":0.8642,"hi":0.9476},{"pref":"junts","nombre":"Junts","sim":0.92,"lo":0.8814,"hi":0.9391},{"pref":"erc","nombre":"ERC","sim":0.8866,"lo":0.8327,"hi":0.9161}]}},"via":{"n":187,"fin":{"req":86,"ind":34},"sin_base":140,"efecto":[{"categoria":"gasto","elementos":80,"porcentaje_elementos":42.78,"lineas":233.74,"porcentaje_lineas":46.41},{"categoria":"menor_ingreso","elementos":6,"porcentaje_elementos":3.21,"lineas":18.69,"porcentaje_lineas":3.71},{"categoria":"mayor_ingreso","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"gasto_e_ingreso","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"sin_efecto_directo","elementos":91,"porcentaje_elementos":48.66,"lineas":231.58,"porcentaje_lineas":45.98},{"categoria":"no_determinable","elementos":10,"porcentaje_elementos":5.35,"lineas":19.65,"porcentaje_lineas":3.9}],"fin_estado":[{"categoria":"indicada_propia","elementos":34,"porcentaje_elementos":39.53,"lineas":105.45,"porcentaje_lineas":41.77},{"categoria":"indicada_grupo","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"indicada_capitulo","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"indicada_programa","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"no_indicada","elementos":52,"porcentaje_elementos":60.47,"lineas":146.98,"porcentaje_lineas":58.23}],"plazo":[{"categoria":"primeros_100_dias","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"primer_ano","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"legislatura_con_fecha","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"legislatura_sin_fecha","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"plazo_impreciso","elementos":3,"porcentaje_elementos":1.6,"lineas":12.08,"porcentaje_lineas":2.4},{"categoria":"sin_plazo","elementos":184,"porcentaje_elementos":98.4,"lineas":491.58,"porcentaje_lineas":97.6}],"origen":[{"categoria":"propia","elementos":3,"porcentaje_elementos":1.6,"lineas":12.08,"porcentaje_lineas":2.4},{"categoria":"grupo","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"capitulo","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"programa","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"ninguna","elementos":184,"porcentaje_elementos":98.4,"lineas":491.58,"porcentaje_lineas":97.6}],"encaje":[{"categoria":"dentro_del_nivel","elementos":16,"porcentaje_elementos":8.56,"lineas":45.79,"porcentaje_lineas":9.09},{"categoria":"fuera_del_nivel","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"compartida_o_depende","elementos":13,"porcentaje_elementos":6.95,"lineas":41.69,"porcentaje_lineas":8.28},{"categoria":"no_determinable","elementos":158,"porcentaje_elementos":84.49,"lineas":416.18,"porcentaje_lineas":82.63}],"base":[{"categoria":"referencia_aportada","elementos":34,"porcentaje_elementos":18.18,"lineas":95.97,"porcentaje_lineas":19.05},{"categoria":"texto_del_programa","elementos":13,"porcentaje_elementos":6.95,"lineas":41.69,"porcentaje_lineas":8.28},{"categoria":"conocimiento_general","elementos":0,"porcentaje_elementos":0.0,"lineas":0.0,"porcentaje_lineas":0.0},{"categoria":"sin_base","elementos":140,"porcentaje_elementos":74.87,"lineas":366.0,"porcentaje_lineas":72.67}],"decl":[],"sinfuente":[{"id":"M0061","texto":"Reclamar el cumplimiento del convenio de infraestructuras turísticas y programas estatales de renovación de destinos maduros.","lineas":6.0},{"id":"M0012","texto":"Exigir un sistema de financiación autonómica suficiente y estable que reconozca el coste de prestar servicios en un archipiélago y considere población efectiva, fragmentación, pobreza y envejecimiento.","lineas":5.0},{"id":"M0093","texto":"Reclamar al Estado el desarrollo y la ampliación de los traspasos de competencias ejecutivas y de gestión sobre el litoral, con medios suficientes.","lineas":5.0},{"id":"M0096","texto":"Reclamar un programa estatal extraordinario para redes de transporte y distribución, subestaciones, digitalización y nueva capacidad de conexión.","lineas":5.0},{"id":"M0118","texto":"Defensa de la creación y financiación estable del Centro Nacional de Vulcanología con sede principal en La Palma.","lineas":4.48},{"id":"M0003","texto":"Exigir un calendario verificable para completar los traspasos y desarrollos pendientes del Estatuto de Autonomía, con medios suficientes, incluyendo transporte aéreo interinsular y autorizaciones de trabajo de extranjeros.","lineas":4.22},{"id":"M0064","texto":"Reclamar al Estado incentivos fiscales y bonificaciones en las cotizaciones ligados a mejoras salariales pactadas y a la productividad de las empresas canarias.","lineas":4.18},{"id":"M0068","texto":"Defensa de las medidas de la propuesta de Decreto Canarias para mantener la deducción del 60 % en el IRPF en La Palma y extenderla a La Gomera y El Hierro.","lineas":4.08},{"id":"M0013","texto":"Reclamar el cumplimiento de los convenios estatales de carreteras, vivienda, agua, costas e infraestructuras educativas y turísticas, con financiación y plazos verificables.","lineas":4.06},{"id":"M0046","texto":"Defensa de una línea estatal reforzada de vivienda joven, alquiler asequible y cooperativas, con fórmulas residenciales para estudiantes, alumnado de FP, jóvenes investigadores y trabajadores.","lineas":4.0}],"fuera":[],"conclusiones":["Financiación: 86 de las 187 medidas (46.0 %) suponen gasto o menor ingreso y por tanto necesitarían una fuente. El programa indica alguna para 34 (39.5 % de ellas); en 52 no la indica.","Tipos de fuente que sí menciona: otra (34); fondos europeos (6).","Plazo: 184 medidas (98.4 %) no tienen plazo; 0 se sitúan en «la legislatura» sin fecha; 0 en la legislatura con fecha, 0 en el primer año y 0 en los primeros 100 días; 3 con plazo impreciso. 0 reciben su plazo de una declaración general del programa y 3 lo indican ellas mismas.","Competencia: según la referencia de competencias del nivel al que concurre el programa, 16 medidas caen dentro del nivel, 0 fuera y 13 son compartidas o dependen de otro nivel. En 140 medidas (75 %) no hay base para valorarlo.","Lectura: este apartado registra lo que el texto dice o deja de decir (fuentes, plazos, competencias). No valora si el programa está bien financiado, si sus plazos son realistas ni si lo que propone es legítimo."]}};
+/* ===== Ficha de partido: render de los apartados del análisis ===== */
+(function () {
+  "use strict";
+  const U = leerUmbral();
+  const $ = s => document.querySelector(s);
+  const T = {
+    // temas
+    economia_y_empleo: "Economía y empleo", seguridad_y_justicia: "Seguridad y justicia", fiscalidad_y_presupuestos: "Fiscalidad y presupuestos",
+    medio_ambiente_y_clima: "Medio ambiente y clima", igualdad_y_derechos_civiles: "Igualdad y derechos civiles", proteccion_social_y_pensiones: "Protección social y pensiones",
+    sanidad: "Sanidad", cultura_y_deporte: "Cultura y deporte", vivienda_y_urbanismo: "Vivienda y urbanismo", transporte_e_infraestructuras: "Transporte e infraestructuras",
+    agricultura_y_mundo_rural: "Agricultura y mundo rural", educacion: "Educación", energia: "Energía", migracion_y_asilo: "Migración y asilo",
+    administracion_publica_y_regeneracion_institucional: "Administración pública y regeneración institucional", digitalizacion_y_tecnologia: "Digitalización y tecnología",
+    defensa_y_politica_exterior: "Defensa y política exterior", union_europea_y_ambito_internacional: "Unión Europea y ámbito internacional",
+    organizacion_territorial: "Organización territorial", ciencia_y_universidades: "Ciencia y universidades", familia_e_infancia: "Familia e infancia", otro: "Otro", sin_tema: "Sin tema asignado",
+    // medidas
+    firme: "Firme", promocional: "Promocional", exploratorio: "Exploratorio", declarativo: "Declarativo",
+    verificable: "Verificable", parcial: "Parcial", vaga: "Vaga",
+    regulatoria: "Regulatoria", distributiva: "Distributiva", redistributiva: "Redistributiva", organizativa_institucional: "Organizativa o institucional",
+    simbolica_o_declarativa: "Simbólica o declarativa", mixta: "Mixta", no_determinable: "No determinable",
+    // diagnostico
+    sin_atribucion: "Sin atribución", elites_o_grupos_de_poder: "Élites o grupos de poder", gobierno_saliente: "Gobierno saliente",
+    sistema_o_modelo_economico: "Sistema o modelo económico", coyuntura_internacional: "Coyuntura internacional", oposicion: "Oposición",
+    instituciones_europeas_o_internacionales: "Instituciones europeas o internacionales", administracion_otro_nivel: "Administración de otro nivel",
+    normativo_valores: "Normativo (valores)", mixto: "Mixto", emocional: "Emocional", tecnico_datos: "Técnico (datos)",
+    miedo: "Miedo", ira: "Ira", tristeza: "Tristeza", confianza: "Confianza", asco: "Asco", sorpresa: "Sorpresa", alegria: "Alegría", anticipacion: "Anticipación",
+    negativo: "Negativa", positivo: "Positiva", neutro: "Neutra", mixto_pol: "Mixta",
+    // ideario
+    centro_izquierda: "Centro-izquierda", izquierda: "Izquierda", centro_derecha: "Centro-derecha", derecha: "Derecha", ultraizquierda: "Ultraizquierda", ultraderecha: "Ultraderecha",
+    // viabilidad
+    primeros_100_dias: "Primeros 100 días", primer_ano: "Primer año", legislatura_con_fecha: "Legislatura, con fecha", legislatura_sin_fecha: "Legislatura, sin fecha",
+    plazo_impreciso: "Plazo impreciso", sin_plazo: "Sin plazo",
+    propia: "Indicación propia", grupo: "Declaración de grupo", capitulo: "Declaración de capítulo", programa: "Declaración de programa", ninguna: "Ninguna",
+    gasto: "Gasto", menor_ingreso: "Menor ingreso", mayor_ingreso: "Mayor ingreso", gasto_e_ingreso: "Gasto e ingreso", sin_efecto_directo: "Sin efecto directo",
+    indicada_propia: "Indicada (propia)", indicada_grupo: "Indicada (grupo)", indicada_capitulo: "Indicada (capítulo)", indicada_programa: "Indicada (programa)", no_indicada: "No indicada",
+    dentro_del_nivel: "Dentro del nivel", fuera_del_nivel: "Fuera del nivel", compartida_o_depende: "Compartida o depende de otro nivel",
+    referencia_aportada: "Referencia de competencias", texto_del_programa: "Texto del programa", conocimiento_general: "Conocimiento general", sin_base: "Sin base",
+    nuevos_impuestos_o_subida_fiscal: "Nuevos impuestos o subida fiscal", deuda_publica: "Deuda pública", recortes_en_otras_partidas: "Recortes en otras partidas",
+    fondos_europeos: "Fondos europeos", eficiencia_o_lucha_contra_el_fraude: "Eficiencia o lucha contra el fraude",
+    ingresos_propios_o_privatizacion_o_concesion: "Ingresos propios, privatización o concesión", otra: "Otra",
+    agregada_por_categoria: "Agregada por categoría (todas las subcategorías)", estricta_sobre_cuasifrases_con_categoria: "Estricta, sin cuasi-frases 000",
+    estricta_por_lineas: "Estricta, ponderada por líneas", alta: "alta", media: "media", baja: "baja"
+  };
+  const et = s => (s == null || s === "") ? "—" : (T[s] || String(s).replace(/_/g, " ").replace(/^./, c => c.toUpperCase()));
+  const n0 = x => Number(x).toLocaleString("es-ES");
+  const nd = (x, d) => Number(x).toLocaleString("es-ES", {minimumFractionDigits: d, maximumFractionDigits: d});
+  const pc = x => nd(x, 1) + " %";
+  const share = (a, b) => b ? a / b * 100 : 0;
+
+  const kpis = a => `<div class="kpis">${a.map(k => `<div class="kpi"><b>${k[0]}</b><span>${esc(k[1])}</span></div>`).join("")}</div>`;
+  function bars(items, o) {
+    o = o || {};
+    const mx = o.max || Math.max(1e-9, ...items.map(i => i.v));
+    return `<div class="bars">${items.map(i => `<div class="bar-r${i.v === 0 ? " cero" : ""}"><span class="bl">${i.sw ? `<i class="sw" style="background:${i.sw}"></i>` : ""}${esc(i.l)}</span><span class="bt"><i style="width:${Math.max(0, i.v / mx * 100)}%"></i></span><span class="bv">${i.t}</span></div>`).join("")}</div>`;
+  }
+  const bloq = (t, h, note) => `<div class="bloq"><h3>${t}</h3>${h}${note ? `<p class="small">${note}</p>` : ""}</div>`;
+  const sec = (id, n, t, sub, body) => `<details class="sec" id="${id}"><summary><span class="nm">${n}</span><span class="st">${t}</span><span class="fl" aria-hidden="true"></span><span class="sr">${sub}</span></summary><div class="sb">${body}</div></details>`;
+  function lista(items, render, vis, etiqueta) {
+    const a = items.slice(0, vis), b = items.slice(vis);
+    return `<ul class="lista">${a.map(render).join("")}</ul>` + (b.length ? `<details class="mas"><summary>Ver ${b.length} ${etiqueta || "más"}</summary><ul class="lista">${b.map(render).join("")}</ul></details>` : "");
+  }
+  const tag = (t, cls) => `<span class="tag${cls ? " " + cls : ""}">${esc(t)}</span>`;
+  const dist = (arr, k, v, extra) => arr.map(x => ({l: et(x[k]), v: x[v || "porcentaje_elementos"], t: `${n0(x[extra || "elementos"])} · ${pc(x[v || "porcentaje_elementos"])}`}));
+
+  const f = F;
+  const r = f.r;
+
+  /* ---------- cabecera ---------- */
+  $("#cab").innerHTML = `<div class="pc grande">${tarjetaHTML(r, U, true)}</div>` + (r.credito ? `<p class="credito" style="margin-top:8px">Fotografía de archivo del cabeza de lista (no procede del programa): «${esc(r.credito.fichero)}» · ${esc(r.credito.autor || "autoría no indicada")} · ${esc(r.credito.licencia || "licencia no indicada")} · <a href="${esc(r.credito.pagina)}" target="_blank" rel="noopener">Wikimedia Commons</a>.</p>` : "");
+  $("#volver").href = `portada_analisis.html${qsU(U)}#resumen`;
+  $("#grafo-enl").href = `portada_analisis.html${qsU(U)}&sel=${r.prefijo}#comparativa`;
+  $("#miga").textContent = r.partido;
+
+  const S_ = [];
+
+  /* ---------- 1. Programa ---------- */
+  {
+    const p = f.programa;
+    let b = kpis([[n0(p.palabras), "palabras"], [`${n0(p.paginas_analizadas)} de ${n0(p.paginas_pdf)}`, "páginas analizadas / del PDF"], [n0(p.parrafos), "párrafos"], [n0(p.frases), "frases"], [n0(Math.round(p.palabras_pagina)), "palabras por página"]]);
+    if (p.saliencia) b += bloq("Temas con más espacio en el texto", bars(p.saliencia.map(x => ({l: et(x.tema), v: x.pct, t: pc(x.pct)}))), "Reparto del texto por vocabulario (aproximación automática por léxico, no una clasificación por sentido). Solo se calcula para programas en castellano.");
+    else b += `<p class="small">El reparto del texto por temas con léxico no se calcula para programas en ${r.idioma === "ca" ? "catalán" : "gallego"}.</p>`;
+    if (p.limites.length) b += bloq("Notas sobre la extracción del texto", `<ul class="lista">${p.limites.map(x => `<li><span class="ds">${esc(x)}</span></li>`).join("")}</ul>`);
+    S_.push(sec("s-programa", 1, "El programa", `${n0(p.palabras)} palabras · ${n0(p.paginas_pdf)} páginas · ${r.idioma === "es" ? "castellano" : r.idioma === "ca" ? "catalán" : "gallego"}`, b));
+  }
+
+  /* ---------- 2. Comunicación visual ---------- */
+  {
+    const v = f.visual, ev = v.evid;
+    let b = kpis([[n0(v.fotos), "fotografías distintas"], [n0(v.ilustraciones), "ilustraciones"], [n0(v.paginas), "páginas del PDF"], [`<span class="sw" style="background:${esc(v.hex)};width:20px;height:20px;vertical-align:-3px"></span>${esc(v.color)}`, "color principal del diseño"]]);
+    b += bloq("Paleta del diseño", bars(v.paleta.map(x => ({l: x.color, v: x.pct, t: pc(x.pct), sw: x.hex}))), "Superficie de cada familia de color en las páginas (las fotografías se excluyen). El blanco es el fondo.");
+    b += bloq("Presencia del cabeza de lista en el programa", kpis([[ev.foto, "en fotografía con su nombre"], [ev.firma, "con firma manuscrita"], [ev.rotulo, "en lema, portada o cartel"]]),
+      `Solo cuenta lo que el propio documento rotula: la identificación nunca se hace por el rostro. ${v.fotos === 0 ? "Este programa no incluye fotografías." : ""}`);
+    if (v.politicos.length) b += bloq("Personas nombradas junto a las imágenes", `<ul class="lista">${v.politicos.map(x => `<li><span class="ds"><b>${esc(x.nombre)}</b>${x.candidato ? " (cabeza de lista)" : ""} · ${x.fotos} ${x.fotos === 1 ? "fotografía" : "fotografías"} · ${x.paginas.length > 1 ? "págs." : "pág."} ${x.paginas.join(", ")}</span></li>`).join("")}</ul>`);
+    const tot = ev.foto + ev.firma + ev.rotulo;
+    S_.push(sec("s-visual", 2, "Comunicación visual", `${n0(v.fotos)} fotografías · diseño ${esc(v.color)} · cabeza de lista presente en ${tot} ${tot === 1 ? "elemento" : "elementos"}`, b));
+  }
+
+  /* ---------- 3. Diagnóstico ---------- */
+  {
+    const d = f.diag;
+    let b = kpis([[n0(d.n), "situaciones descritas"], [pc(d.pct), "del programa es diagnóstico"], [nd(d.lineas, 0), "líneas impresas"]]);
+    b += `<p class="small">El diagnóstico recoge cómo describe el programa la situación actual (sociedad, economía, Estado). ${d.pct < 6 ? "En este programa ocupa muy poco espacio: casi todo el texto son propuestas." : ""}</p>`;
+    b += `<div class="dos">${bloq("A quién señala como responsable", bars(d.responsables.map(x => ({l: et(x.k), v: x.pct, t: `${x.n} · ${pc(x.pct)}`}))), "Porcentaje de las líneas de diagnóstico.")}${bloq("Emoción predominante", d.emociones.length ? bars(d.emociones.map(x => ({l: et(x.k), v: x.pct, t: pc(x.pct)}))) : "<p class=\"small\">Sin emociones etiquetadas.</p>", "Taxonomía NRC, sobre las líneas etiquetadas.")}</div>`;
+    b += bloq(`Situaciones descritas (${d.lista.length})`, lista(d.lista, x => `<li><div class="tt">${esc(x.titulo)}</div><div class="ds">${esc(x.descripcion)}</div><div class="mt">${tag("Importancia " + x.imp, x.imp === "alta" ? "alta" : "")}${tag(pc(x.pct) + " del diagnóstico")}${tag(et(x.tema))}${tag("Responsable: " + x.resp.map(et).join(", "))}${x.emo ? tag(et(x.emo)) : ""}</div></li>`, 5, "situaciones más"), "Importancia = espacio que ocupa la situación dentro del diagnóstico del programa.");
+    S_.push(sec("s-diagnostico", 3, "Diagnóstico", `${n0(d.n)} situaciones · ${pc(d.pct)} del programa`, b));
+  }
+
+  /* ---------- 4. Objetivos ---------- */
+  {
+    const o = f.obj;
+    let b = kpis([[n0(o.n), "metas u objetivos"], [pc(o.pct), "del programa se dedica a objetivos"], [n0(o.sin_corr), "metas sin correspondencia en la referencia"]]);
+    if (o.familias.length) b += bloq("Familias con las que la referencia aportada asocia el tema de las metas", bars(o.familias.map(x => ({l: et(x.k), v: x.pct, t: `${x.n} metas · ${pc(x.pct)}`}))), "Asocia el TEMA de cada meta con una familia política según una referencia externa; no clasifica al partido ni mide a quién «pertenece» el tema.");
+    b += bloq(`Metas del programa (${o.lista.length})`, lista(o.lista, x => `<li><div class="tt">${esc(x.titulo)}</div><div class="ds">${esc(x.descripcion)}</div><div class="mt">${tag("Importancia " + x.imp, x.imp === "alta" ? "alta" : "")}${tag(pc(x.pct) + " de los objetivos")}${tag(et(x.tema))}${x.fam.length ? tag("Referencia: " + x.fam.map(et).join(", ")) : tag("Sin correspondencia en la referencia")}${tag(x.caps + (x.caps === 1 ? " capítulo" : " capítulos"))}</div></li>`, 5, "metas más"), "Ordenadas por el espacio que ocupan en el programa.");
+    S_.push(sec("s-objetivos", 4, "Objetivos estratégicos", `${n0(o.n)} metas · ${pc(o.pct)} del programa`, b));
+  }
+
+  /* ---------- 5. Medidas ---------- */
+  {
+    const m = f.med;
+    let b = kpis([[n0(m.n), "medidas identificadas"], [pc(m.pct), "del programa son medidas"], [n0(m.firmes_verif), "firmes y verificables"], [n0(m.cond), "con condición expresa"]]);
+    b += `<div class="dos">${bloq("Nivel de compromiso (según el verbo)", bars(m.niveles.map(x => ({l: et(x.k), v: x.pct, t: `${n0(x.n)} · ${pc(x.pct)}`}))))}${bloq("Especificidad", bars(m.especif.map(x => ({l: et(x.k), v: x.pct, t: `${n0(x.n)} · ${pc(x.pct)}`}))), "Verificable = se podría comprobar si se cumple.")}</div>`;
+    b += `<div class="dos">${bloq("Tipo de política", bars(m.tipos.map(x => ({l: et(x.k), v: x.pct, t: `${n0(x.n)} · ${pc(x.pct)}`}))))}${bloq("Temas con más medidas", bars(m.temas.map(x => ({l: et(x.k), v: x.pct, t: `${n0(x.n)} · ${pc(x.pct)}`}))))}</div>`;
+    b += bloq(`Las ${m.top.length} medidas que más espacio ocupan`, lista(m.top, x => `<li><div class="ds">${esc(x.texto)}</div><div class="mt">${tag(et(x.nivel))}${tag(et(x.espec))}${tag(et(x.tema))}${tag("pág. " + x.pagina)}${tag(nd(x.lineas, 1) + " líneas")}</div></li>`, 5, "medidas más"), "Ordenadas por líneas impresas, no por su importancia política. Los resúmenes son del análisis; la página remite al texto original.");
+    S_.push(sec("s-medidas", 5, "Medidas concretas", `${n0(m.n)} medidas · ${n0(m.firmes_verif)} firmes y verificables`, b));
+  }
+
+  /* ---------- 6. MARPOR ---------- */
+  {
+    const k = f.marpor, ri = k.rile;
+    const cl = v => Math.max(-EJE, Math.min(EJE, v)), x = (cl(ri.valor) + EJE) / (2 * EJE) * 100;
+    let b = kpis([[n0(k.cuasi), "cuasi-frases codificadas"], [pc(k.cortadas), "de las oraciones se cortaron"], [n0(k.mediana), "palabras por cuasi-frase (mediana)"], [n0(k.c000), "sin categoría (000)"]]);
+    b += bloq("Reparto por grandes dominios", bars(k.dominios.map(x => ({l: x.nombre, v: x.pct, t: `${n0(x.n)} · ${pc(x.pct)}`}))), `Porcentaje de cuasi-frases del programa. Cada cuasi-frase pesa ${nd(k.pp, 2)} puntos porcentuales.`);
+    b += bloq("Las categorías con más peso", bars(k.cats.map(x => ({l: `${x.cod} · ${x.nombre}`, v: x.pct, t: `${n0(x.n)} · ${pc(x.pct)}`}))), "Las categorías «positivo» o «negativo» indican la dirección del enunciado respecto del concepto, no una valoración.");
+    b += bloq("Puntuación MARPOR (índice RILE)", `<div class="score" style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><b style="font:600 40px/1 'Space Grotesk',Inter,sans-serif">${fS(ri.valor)}</b><span class="small">de −100 a +100 · variante estricta</span></div>
+      <div class="eje" aria-hidden="true" style="max-width:520px"><div class="barra"></div><div class="cero"></div><div class="punto" style="left:${x}%"></div><span class="ext" style="left:0">−${EJE}</span><span class="ext" style="left:50%;transform:translateX(-50%)">0</span><span class="ext" style="right:0">+${EJE}</span></div>
+      ${kpis([[pc(ri.der), "suma del polo «derecha»"], [pc(ri.izq), "suma del polo «izquierda»"], [pc(ri.fuera), "fuera de los dos polos"]])}`,
+      "RILE = suma de 13 categorías de un polo menos la de 13 del otro. Es una convención del índice: no mide ideología, extremismo ni valores.");
+    b += `<div class="dos">${bloq("Categorías que más aportan al polo «derecha»", ri.pder.length ? bars(ri.pder.map(x => ({l: `${x.cod} · ${x.nombre}`, v: x.pct, t: pc(x.pct)}))) : "<p class=\"small\">Ninguna.</p>")}${bloq("Categorías que más aportan al polo «izquierda»", ri.pizq.length ? bars(ri.pizq.map(x => ({l: `${x.cod} · ${x.nombre}`, v: x.pct, t: pc(x.pct)}))) : "<p class=\"small\">Ninguna.</p>")}</div>`;
+    b += bloq("Sensibilidad: el mismo índice con otros criterios", `<div class="scroll"><table><tr><th>Variante</th><th class="n">RILE</th><th class="n">Diferencia</th></tr><tr><td>Estricta (principal)</td><td class="n">${fS(ri.valor)}</td><td class="n">—</td></tr>${k.sens.map(s => `<tr><td>${esc(et(s.v))}</td><td class="n">${fS(s.rile)}</td><td class="n">${fS(s.rile - ri.valor)}</td></tr>`).join("")}</table></div>`,
+      `Una sola cuasi-frase mueve el índice unas ${nd(k.pp, 2)} décimas de punto; con pocas cuasi-frases el índice es más sensible.`);
+    if (k.vec.con301.length) b += bloq("Programas con un perfil de temas más parecido", `<div class="vec">${k.vec.con301.map(v => `<a href="partido_${v.pref}.html${qsU(U)}"><b>${esc(v.nombre)}</b><span>similitud ${nd(v.sim, 3)} [${nd(v.lo, 2)}–${nd(v.hi, 2)}]</span></a>`).join("")}</div>`,
+      "Coseno entre perfiles de 56 categorías (con la 301). Mide parecido en énfasis, no acuerdo ni posible coalición. El intervalo es del 95 % por remuestreo.");
+    S_.push(sec("s-marpor", 6, "Codificación MARPOR y RILE", `${n0(k.cuasi)} cuasi-frases · RILE ${fS(ri.valor)}`, b));
+  }
+
+  /* ---------- 7. Viabilidad ---------- */
+  {
+    const v = f.via, fin = v.fin;
+    let b = kpis([[n0(v.n), "medidas evaluadas"], [n0(fin.req), "requieren fuente de financiación"], [n0(fin.ind), "indican alguna fuente"], [n0(v.sin_base), "sin base para valorar su competencia"]]);
+    b += `<div class="dos">${bloq("Efecto presupuestario", bars(dist(v.efecto, "categoria")))}${bloq("Estado de la financiación", bars(dist(v.fin_estado, "categoria")), "Solo las medidas con gasto o menor ingreso requieren fuente.")}</div>`;
+    b += `<div class="dos">${bloq("Plazo de ejecución", bars(dist(v.plazo, "categoria")))}${bloq("De dónde sale el plazo", bars(dist(v.origen, "categoria")), "«Declaración de programa» = el programa dice con carácter general cuándo se cumplirá.")}</div>`;
+    b += `<div class="dos">${bloq("Encaje competencial", bars(dist(v.encaje, "categoria")), "Según la referencia de competencias del nivel al que se presenta (Cortes Generales).")}${bloq("Base de la valoración de competencia", bars(dist(v.base, "categoria")))}</div>`;
+    const DIM = {financiacion: "Financiación", plazo: "Plazo", competencia: "Competencia"}, ALC = {programa: "todo el programa", capitulo: "un capítulo", elementos: "un grupo de medidas"};
+    if (v.decl.length) b += bloq(`Declaraciones generales registradas (${v.decl.length})`, lista(v.decl, d => `<li><div class="tt">${esc(DIM[d.dimension] || d.dimension)} · ${esc(ALC[d.alcance] || d.alcance)}</div>${d.cita ? `<div class="ds">«${esc(d.cita)}»${d.pagina ? " (pág. " + d.pagina + ")" : ""}</div>` : ""}${d.descripcion ? `<div class="ds">${esc(d.descripcion)}</div>` : ""}${d.fuentes.length ? `<div class="ds">Fuentes: ${d.fuentes.map(esc).join("; ")}</div>` : ""}<div class="mt">${tag("Cubre " + n0(d.cubre) + " elementos")}${d.categoria ? tag(et(d.categoria)) : ""}</div></li>`, 4, "declaraciones más"), "Frases del programa que fijan una fuente de financiación o un plazo para varias medidas a la vez.");
+    else b += bloq("Declaraciones generales registradas", "<p class=\"ds\">El programa no contiene ninguna declaración expresa de financiación, plazo o competencia con alcance general.</p>");
+    if (v.sinfuente.length) b += bloq("Medidas con mayor espacio que requieren fuente y no la indican", lista(v.sinfuente, x => `<li><div class="ds">${esc(x.texto)}</div><div class="mt">${tag(x.id)}${tag(nd(x.lineas, 1) + " líneas")}</div></li>`, 4, "medidas más"));
+    if (v.fuera.length) b += bloq("Medidas que, según el texto o la referencia, quedan fuera del nivel de las Cortes", lista(v.fuera, x => `<li><div class="ds">${esc(x.texto)}</div><div class="mt">${tag(x.id)}${tag(nd(x.lineas, 1) + " líneas")}</div></li>`, 4, "medidas más"), "Describe el encaje competencial; no valora si lo que se pide es legítimo.");
+    b += `<div class="concl"><h3>Conclusiones de la viabilidad</h3><ul>${v.conclusiones.map(c => `<li>${esc(c)}</li>`).join("")}</ul></div>`;
+    S_.push(sec("s-viabilidad", 7, "Viabilidad y conclusiones", `${n0(fin.req)} medidas requieren fuente, ${n0(fin.ind)} la indican · plazos y competencias`, b));
+  }
+
+  $("#secs").innerHTML = S_.join("");
+  const abrir = o => document.querySelectorAll("#secs > details.sec").forEach(d => d.open = o);
+  $("#b-abrir").addEventListener("click", () => abrir(true));
+  $("#b-cerrar").addEventListener("click", () => abrir(false));
+  if (location.hash) { const t = document.querySelector(location.hash); if (t && t.tagName === "DETAILS") { t.open = true; t.scrollIntoView(); } }
+})();
+
+</script>

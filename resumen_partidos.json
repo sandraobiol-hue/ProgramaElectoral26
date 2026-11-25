@@ -1,0 +1,541 @@
+[
+ {
+  "prefijo": "psoe",
+  "partido": "PSOE",
+  "partido_oficial": "Partido Socialista",
+  "candidato": "Pedro Sánchez",
+  "titulo": "La fuerza de seguir avanzando",
+  "subtitulo": "Programa elecciones generales 29 noviembre 2026",
+  "idioma": "es",
+  "rile": -28.99,
+  "fpos": "50% 12%",
+  "propuestas": [
+   {
+    "texto": "Impuesto progresivo sobre la posesión de viviendas de grandes propietarios y fondos que no se destinen a alquiler residencial asequible (turísticas, vacías o con precio abusivo).",
+    "pagina": 32,
+    "compromiso": "firme",
+    "id": "M0097"
+   },
+   {
+    "texto": "Incorporación de la perspectiva de género en la prevención de riesgos laborales, reconociendo y previniendo riesgos y enfermedades específicos de las mujeres.",
+    "pagina": 79,
+    "compromiso": "firme",
+    "id": "M0397"
+   },
+   {
+    "texto": "Consolidación del uso de las lenguas cooficiales en las Cortes Generales y su extensión a la atención de la Administración General del Estado en los territorios donde son oficiales.",
+    "pagina": 92,
+    "compromiso": "firme",
+    "id": "M0475"
+   },
+   {
+    "texto": "Refuerzo del control de la contratación, las subvenciones y la financiación política con análisis de datos y trazabilidad del gasto, y ampliación del acceso a información pública.",
+    "pagina": 103,
+    "compromiso": "promocional",
+    "id": "M0550"
+   },
+   {
+    "texto": "Avance en la creación del Régimen 20 (comunidad autónoma 20) para homogeneizar requisitos y reducir la carga burocrática de las empresas.",
+    "pagina": 16,
+    "compromiso": "promocional",
+    "id": "M0016"
+   }
+  ],
+  "credito": {
+   "fichero": "Pedro_Sánchez_in_2026.jpg",
+   "autor": "Pool Moncloa/ Carlos Spottorno de las Morenas",
+   "licencia": "Attribution",
+   "pagina": "https://commons.wikimedia.org/wiki/File:Pedro_S%C3%A1nchez_in_2026.jpg"
+  }
+ },
+ {
+  "prefijo": "pp",
+  "partido": "PP",
+  "partido_oficial": "Partido Popular",
+  "candidato": "Alberto Núñez Feijóo",
+  "titulo": "Reconstrucción nacional",
+  "subtitulo": "El programa del cambio necesario para España",
+  "idioma": "es",
+  "rile": -6.88,
+  "fpos": "50% 14%",
+  "propuestas": [
+   {
+    "texto": "Derogación de la ley de memoria democrática y su sustitución por una norma de concordia que proteja la investigación histórica y mantenga la búsqueda de desaparecidos.",
+    "pagina": 37,
+    "compromiso": "firme",
+    "id": "M0369"
+   },
+   {
+    "texto": "Impulso de la industria española de defensa para dotar a las Fuerzas Armadas de capacidades, generar empleo y desarrollar tecnología propia, con prioridad a drones, antiaérea, munición,…",
+    "pagina": 22,
+    "compromiso": "promocional",
+    "id": "M0199"
+   },
+   {
+    "texto": "Procedimiento formal de transición entre Gobiernos, con informe completo de cada ministerio, plazos, responsables y consecuencias por ocultación o datos falsos.",
+    "pagina": 25,
+    "compromiso": "firme",
+    "id": "M0215"
+   },
+   {
+    "texto": "Criterios de prioridad en el acceso a ayudas, prestaciones y recursos públicos para quienes mantengan arraigo real, duradero y verificable con España, sin basarse exclusivamente en la…",
+    "pagina": 32,
+    "compromiso": "firme",
+    "id": "M0287"
+   },
+   {
+    "texto": "Ayudas directas a los municipios de menos de 250 habitantes para servicios básicos, infraestructuras, acceso a proyectos europeos y subvenciones, con tramitación sencilla.",
+    "pagina": 34,
+    "compromiso": "firme",
+    "id": "M0307"
+   }
+  ],
+  "credito": {
+   "fichero": "ALBERTO_NÚÑEZ_FEIJÓO.jpg",
+   "autor": "Partido Popular PP",
+   "licencia": "CC0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:ALBERTO_N%C3%9A%C3%91EZ_FEIJ%C3%93O.jpg"
+  }
+ },
+ {
+  "prefijo": "vox",
+  "partido": "VOX",
+  "partido_oficial": "VOX",
+  "candidato": "Santiago Abascal",
+  "titulo": "Programa electoral",
+  "subtitulo": "29 de noviembre de 2026 (sin título propio en la portada)",
+  "idioma": "es",
+  "rile": 3.77,
+  "fpos": "50% 12%",
+  "propuestas": [
+   {
+    "texto": "Derogación de las leyes de género y reversión de las normas que el programa considera perjudiciales para las víctimas.",
+    "pagina": 30,
+    "compromiso": "firme",
+    "id": "M0112"
+   },
+   {
+    "texto": "Silencio administrativo positivo y declaración responsable como regla general, con excepción de nacionalidad, residencia, permisos de trabajo a extranjeros e inmigración.",
+    "pagina": 28,
+    "compromiso": "firme",
+    "id": "M0100"
+   },
+   {
+    "texto": "Impulso de la investigación, desarrollo y aplicación de la inteligencia artificial y facilitación de su implantación en empresas, con formación de trabajadores y jóvenes.",
+    "pagina": 27,
+    "compromiso": "promocional",
+    "id": "M0095"
+   },
+   {
+    "texto": "Mejora de las condiciones laborales y retributivas de los profesionales sanitarios, con incentivos para plazas rurales, contratos estables y refuerzo de plantillas.",
+    "pagina": 37,
+    "compromiso": "promocional",
+    "id": "M0141"
+   },
+   {
+    "texto": "Ley de Unidad de Mercado: lo legal en una región lo es en toda España, sin trámites adicionales.",
+    "pagina": 28,
+    "compromiso": "firme",
+    "id": "M0101"
+   }
+  ],
+  "credito": {
+   "fichero": "Santiago_Abascal_(54349274173)_(cropped).jpg",
+   "autor": "Gage Skidmore from Surprise, AZ, United States of America",
+   "licencia": "CC BY-SA 2.0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:Santiago_Abascal_(54349274173)_(cropped).jpg"
+  }
+ },
+ {
+  "prefijo": "frente_amplio",
+  "partido": "Frente Amplio",
+  "partido_oficial": "Frente Amplio",
+  "candidato": "Ada Colau",
+  "titulo": "Un programa como una casa",
+  "subtitulo": "Elecciones generales 29N 2026",
+  "idioma": "es",
+  "rile": -38.38,
+  "fpos": "42% 18%",
+  "propuestas": [
+   {
+    "texto": "Plan de Empleo Garantizado dirigido a personas desempleadas de larga duración, mediante convenios con comunidades autónomas y entidades locales, sin cubrir puestos estructurales de las…",
+    "pagina": 101,
+    "compromiso": "firme",
+    "id": "M0880"
+   },
+   {
+    "texto": "Impulso inmediato de la reforma del sistema de financiación autonómica a partir de la propuesta del Gobierno anterior, para resolver la infrafinanciación, la baja corresponsabilidad fiscal,…",
+    "pagina": 103,
+    "compromiso": "promocional",
+    "id": "M0881"
+   },
+   {
+    "texto": "Impulso de que el Reglamento de la UE «EU KIDS ACT» establezca plazo máximo de retirada de contenido de abuso infantil y requerimientos de mitigación de riesgos para plataformas muy grandes.",
+    "pagina": 42,
+    "compromiso": "promocional",
+    "id": "M0325"
+   },
+   {
+    "texto": "Proyecto de Ley de Gobiernos Locales que refuerce la autonomía local y garantice un sistema de financiación estable y proporcional a competencias definidas de las entidades locales.",
+    "pagina": 109,
+    "compromiso": "firme",
+    "id": "M0916"
+   },
+   {
+    "texto": "Impuesto del 10 % sobre el valor de los pisos de empresas desde el primer inmueble y de particulares desde el cuarto, con exención de viviendas en alquiler asequible.",
+    "pagina": 18,
+    "compromiso": "firme",
+    "id": "M0065"
+   }
+  ],
+  "credito": {
+   "fichero": "Ada-Colau-Encuentro-2024.jpg",
+   "autor": "Robo71",
+   "licencia": "CC0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:Ada-Colau-Encuentro-2024.jpg"
+  }
+ },
+ {
+  "prefijo": "podemos",
+  "partido": "Podemos",
+  "partido_oficial": "Podemos",
+  "candidato": "Irene Montero",
+  "titulo": "Así de básico: paz, casa y trabajo",
+  "subtitulo": "Programa electoral",
+  "idioma": "es",
+  "rile": -38.28,
+  "fpos": "50% 12%",
+  "propuestas": [
+   {
+    "texto": "Plan integral de inversión 100 % pública y municipal en placas fotovoltaicas y rehabilitación energética de viviendas de ingresos medios bajos, con fondo de financiación para municipios al…",
+    "pagina": 99,
+    "compromiso": "firme",
+    "id": "M0793"
+   },
+   {
+    "texto": "Creación de un Sistema Estatal de Cuidados y Conciliación como cuarto pilar del Estado del Bienestar, con cobertura pública de las necesidades de cuidados mediante asistencia personal,…",
+    "pagina": 62,
+    "compromiso": "firme",
+    "id": "M0416"
+   },
+   {
+    "texto": "Moratoria inmediata a la apertura de regadíos hiperintensivos en manos de grandes propietarios y de nuevos regadíos ordinarios en cuencas afectadas por sequía, y control o corte del…",
+    "pagina": 108,
+    "compromiso": "firme",
+    "id": "M0859"
+   },
+   {
+    "texto": "Ley integral de Atención Primaria que destine al menos el 25 % del presupuesto sanitario a Atención Primaria (700 euros por habitante y año), con máximos de 1.300 pacientes por médico de…",
+    "pagina": 90,
+    "compromiso": "firme",
+    "id": "M0719"
+   },
+   {
+    "texto": "Ley orgánica para garantizar el derecho a la información veraz, combatir la desinformación y asegurar el pluralismo, la transparencia y la independencia de los medios, con medidas contra la…",
+    "pagina": 138,
+    "compromiso": "firme",
+    "id": "M1065"
+   }
+  ],
+  "credito": {
+   "fichero": "Irene_Montero_Gil,_2024_(cropped).jpg",
+   "autor": "The Left -MEP Irene Montero, Podemos - The Left in the European Parliament",
+   "licencia": "CC0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:Irene_Montero_Gil,_2024_(cropped).jpg"
+  }
+ },
+ {
+  "prefijo": "coalicion",
+  "partido": "Coalición Canaria",
+  "partido_oficial": "Coalición Canaria",
+  "candidato": "Cristina Valido",
+  "titulo": "Defiende Canarias",
+  "subtitulo": "Bases del programa electoral de Coalición Canaria y Municipalistas Primero Canarias",
+  "idioma": "es",
+  "rile": -17.76,
+  "fpos": "50% 22%",
+  "propuestas": [
+   {
+    "texto": "Reclamar el cumplimiento del convenio de infraestructuras turísticas y programas estatales de renovación de destinos maduros.",
+    "pagina": 12,
+    "compromiso": "firme",
+    "id": "M0061"
+   },
+   {
+    "texto": "Exigir que España defienda ante la UE adaptaciones de las políticas climáticas de aviación y navegación que reconozcan la dependencia canaria del avión y del barco.",
+    "pagina": 16,
+    "compromiso": "firme",
+    "id": "M0112"
+   },
+   {
+    "texto": "Reclamar un convenio estatal de diez años con financiación suficiente para ejecutar el Tren de Gran Canaria y tratamiento equivalente para los proyectos ferroviarios de Tenerife.",
+    "pagina": 18,
+    "compromiso": "firme",
+    "id": "M0140"
+   },
+   {
+    "texto": "Apertura de un debate y búsqueda de consenso en el marco estatal para una política común de protección y bienestar de la infancia (ayudas a la crianza, vivienda, violencia digital, salud…",
+    "pagina": 9,
+    "compromiso": "exploratorio",
+    "id": "M0030"
+   },
+   {
+    "texto": "Evaluación y actualización de los instrumentos del REF para atraer inversión productiva e innovadora que genere empleo estable.",
+    "pagina": 12,
+    "compromiso": "exploratorio",
+    "id": "M0062"
+   }
+  ],
+  "credito": {
+   "fichero": "Cristina_Valido_2023_(cropped).jpg",
+   "autor": "Canal 10 televisión 📺 (youtube)",
+   "licencia": "CC BY 3.0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:Cristina_Valido_2023_(cropped).jpg"
+  }
+ },
+ {
+  "prefijo": "erc",
+  "partido": "ERC",
+  "partido_oficial": "Esquerra Republicana de Catalunya",
+  "candidato": "Gabriel Rufián",
+  "titulo": "Pel país. Per la gent. Pel futur.",
+  "subtitulo": "Eleccions al Congrés 2026 · Programa electoral",
+  "idioma": "ca",
+  "rile": -18.21,
+  "fpos": "50% 14%",
+  "propuestas": [
+   {
+    "texto": "Defensa del derecho de autodeterminación de los pueblos, con exigencias al Gobierno español sobre el Sáhara Occidental y Palestina.",
+    "pagina": 16,
+    "compromiso": "declarativo",
+    "id": "M0051"
+   },
+   {
+    "texto": "Aprobación de una Ley del plurilingüismo que regule el uso de las lenguas oficiales en la Administración, exija su conocimiento a empleados públicos, incorpore criterios lingüísticos en la…",
+    "pagina": 9,
+    "compromiso": "firme",
+    "id": "M0010"
+   },
+   {
+    "texto": "Reformar la Ley 39/1988 reguladora de las haciendas locales para actualizar la financiación local, aumentar la participación en ingresos del Estado y extender a todos los ayuntamientos la…",
+    "pagina": 44,
+    "compromiso": "firme",
+    "id": "M0252"
+   },
+   {
+    "texto": "Acelerar las obras pendientes del Corredor Mediterráneo, segregar el tráfico de mercancías del de pasajeros, revisar proyectos obsoletos y ejecutar el tercer hilo entre Figueres y Portbou.",
+    "pagina": 40,
+    "compromiso": "promocional",
+    "id": "M0230"
+   },
+   {
+    "texto": "Avanzar hacia la gestión desde Cataluña de los aeropuertos catalanes de interés general, con plena operatividad de la Autoridad Aeroportuaria de Cataluña, un órgano bilateral…",
+    "pagina": 38,
+    "compromiso": "promocional",
+    "id": "M0208"
+   }
+  ],
+  "credito": {
+   "fichero": "Gabriel_Rufián_Portavoz_de_Esquerra_Republicana_en_el_Congreso_de_los_diputados_(cropped).jpg",
+   "autor": "Marcpuigperez",
+   "licencia": "CC BY-SA 4.0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:Gabriel_Rufi%C3%A1n_Portavoz_de_Esquerra_Republicana_en_el_Congreso_de_los_diputados_(cropped).jpg"
+  }
+ },
+ {
+  "prefijo": "junts",
+  "partido": "Junts",
+  "partido_oficial": "Junts",
+  "candidato": "Míriam Nogueras",
+  "titulo": "Catalunya al centre",
+  "subtitulo": "Programa electoral 29N · Eleccions generals",
+  "idioma": "ca",
+  "rile": -7.2,
+  "fpos": "50% 14%",
+  "propuestas": [
+   {
+    "texto": "[SEG 4.2] Reconocimiento jurídico y protección de los bomberos voluntarios mediante reforma de la legislación estatal: régimen jurídico específico, protección de seguridad, social y…",
+    "pagina": 23,
+    "compromiso": "firme",
+    "id": "M0137"
+   },
+   {
+    "texto": "[DIS 2.5] Promover reformas que hagan compatible la percepción de pensiones y prestaciones con la actividad laboral e incorporar el análisis de sobrecostes de la discapacidad en las medidas…",
+    "pagina": 39,
+    "compromiso": "promocional",
+    "id": "M0336"
+   },
+   {
+    "texto": "[JUS 1.4] Combatir la catalanofobia y la discriminación lingüística: incorporar lengua y origen territorial como motivos de discriminación, sancionar abusos de poderes públicos y regular…",
+    "pagina": 13,
+    "compromiso": "firme",
+    "id": "M0013"
+   },
+   {
+    "texto": "[ADM 2.5] Regular los grupos de interés: obligaciones reforzadas de registro y transparencia a lobbistas profesionales y consultoras, cargas simplificadas para actores no profesionales, y…",
+    "pagina": 30,
+    "compromiso": "firme",
+    "id": "M0239"
+   },
+   {
+    "texto": "[ADM 4.8] Modernizar la carrera profesional, la movilidad y la provisión de puestos: funciones de cuerpos, prolongación voluntaria del servicio activo hasta los 72 años, concursos con…",
+    "pagina": 31,
+    "compromiso": "promocional",
+    "id": "M0251"
+   }
+  ],
+  "credito": {
+   "fichero": "Candidats_Eleccions_Generals_2015_-_Míriam_Nogueras.jpg",
+   "autor": "Convergència Democràtica de Catalunya",
+   "licencia": "CC BY 2.0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:Candidats_Eleccions_Generals_2015_-_M%C3%ADriam_Nogueras.jpg"
+  }
+ },
+ {
+  "prefijo": "bng",
+  "partido": "BNG",
+  "partido_oficial": "BNG",
+  "candidato": "Néstor Rego",
+  "titulo": "Programa electoral 29N",
+  "subtitulo": "Xerais 2026",
+  "idioma": "gl",
+  "rile": -27.76,
+  "fpos": "55% 30%",
+  "propuestas": [
+   {
+    "texto": "Plan de acción contra la siniestralidad laboral: promoción del empleo estable en sectores de alta siniestralidad, mayor control, reducción obligatoria de jornada en actividades peligrosas,…",
+    "pagina": 16,
+    "compromiso": "promocional",
+    "id": "M0071"
+   },
+   {
+    "texto": "Transferencia al Gobierno gallego de todas las competencias educativas pendientes, de los programas y centros adscritos a la Administración central y de las becas de enseñanza no…",
+    "pagina": 34,
+    "compromiso": "firme",
+    "id": "M0220"
+   },
+   {
+    "texto": "Actualización de la red ferroviaria interior gallega con actuaciones en los tramos A Coruña-Ferrol, A Coruña-Lugo y Vigo-frontera portuguesa, la línea Ferrol-Ribadeo, la salida sur de Vigo…",
+    "pagina": 61,
+    "compromiso": "firme",
+    "id": "M0404"
+   },
+   {
+    "texto": "Nuevo marco educativo con una Ley galega de educación hasta Bachillerato, una Ley galega de formación profesional, una ley de enseñanzas artísticas superiores y una Ley del Sistema…",
+    "pagina": 34,
+    "compromiso": "firme",
+    "id": "M0218"
+   },
+   {
+    "texto": "Traspaso a la Xunta de las competencias en salud penitenciaria, con medios y compensación de la deuda del Ministerio del Interior con el SERGAS.",
+    "pagina": 39,
+    "compromiso": "firme",
+    "id": "M0264"
+   }
+  ],
+  "credito": {
+   "fichero": "Néstor_Rego_Candamil,_XV_Asemblea_Nacional_Bloque_Nacionalista_Galego_21.jpg",
+   "autor": "Elisardojm",
+   "licencia": "CC BY-SA 4.0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:N%C3%A9stor_Rego_Candamil,_XV_Asemblea_Nacional_Bloque_Nacionalista_Galego_21.jpg"
+  }
+ },
+ {
+  "prefijo": "bildu",
+  "partido": "EH Bildu",
+  "partido_oficial": "Bildu",
+  "candidato": "Oskar Matute",
+  "titulo": "Garantía y derechos",
+  "subtitulo": "Programa",
+  "idioma": "es",
+  "rile": -32.64,
+  "fpos": "50% 14%",
+  "propuestas": [
+   {
+    "texto": "Propuesta de asunción de nuevas competencias plenas en migración, Seguridad Social, protección social y desempleo, puertos y aeropuertos, energía y Marco Vasco y Navarro de Relaciones…",
+    "pagina": 24,
+    "compromiso": "firme",
+    "id": "M0204"
+   },
+   {
+    "texto": "Mecanismo de intervención extraordinaria sobre los márgenes de las grandes empresas de los sectores energético y alimentario, con obligaciones de absorción de parte de los aumentos de…",
+    "pagina": 8,
+    "compromiso": "firme",
+    "id": "M0037"
+   },
+   {
+    "texto": "Refuerzo de la intervención y supervisión pública sobre la cadena alimentaria, con controles obligatorios sobre precios y márgenes de grandes distribuidoras e intermediarios y refuerzo de…",
+    "pagina": 9,
+    "compromiso": "promocional",
+    "id": "M0041"
+   },
+   {
+    "texto": "Ayudas y reducciones de precio para sectores productivos afectados por incrementos extraordinarios de costes energéticos y de insumos (industria, transporte profesional y sector primario),…",
+    "pagina": 9,
+    "compromiso": "firme",
+    "id": "M0044"
+   },
+   {
+    "texto": "Garantizar puestos accesibles, apoyos al empleo, adaptaciones, carrera profesional y estabilidad para personas con discapacidad, con cumplimiento efectivo de la cuota de reserva de empleo…",
+    "pagina": 7,
+    "compromiso": "firme",
+    "id": "M0024"
+   }
+  ],
+  "credito": {
+   "fichero": "BC_OSKAR_MATUTE.jpg",
+   "autor": "EH Bildu",
+   "licencia": "CC BY-SA 3.0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:BC_OSKAR_MATUTE.jpg"
+  }
+ },
+ {
+  "prefijo": "pnv",
+  "partido": "PNV",
+  "partido_oficial": "Partido Nacionalista Vasco",
+  "candidato": "Maribel Vaquero",
+  "titulo": "Euskadi zaindu",
+  "subtitulo": "Programa elecciones generales 2026 (Hauteskunde orokorren)",
+  "idioma": "es",
+  "rile": -14.61,
+  "fpos": "50% 14%",
+  "propuestas": [
+   {
+    "texto": "Impulso de una reforma integral del IVA de bienes y servicios esenciales, con estudio de tipos cero o superreducidos para determinados alimentos y revisión de la tributación de suministros…",
+    "pagina": 21,
+    "compromiso": "promocional",
+    "id": "M0115"
+   },
+   {
+    "texto": "Ampliación de la capacidad normativa de las Haciendas Forales en el IVA y los Impuestos Especiales, mediante la actualización del Concierto Económico y modificaciones legales, dentro de los…",
+    "pagina": 21,
+    "compromiso": "firme",
+    "id": "M0120"
+   },
+   {
+    "texto": "Reclamar la competencia plena para establecer un salario mínimo propio de Euskadi, superior al estatal, e impulsar su definición mediante diálogo social. (Medida 1.3-01)",
+    "pagina": 9,
+    "compromiso": "promocional",
+    "id": "M0016"
+   },
+   {
+    "texto": "Fomento de una prestación económica para personas cuidadoras no profesionales que hayan dejado su actividad o reducido jornada, con referencia al salario mínimo y la intensidad de los…",
+    "pagina": 33,
+    "compromiso": "promocional",
+    "id": "M0184"
+   },
+   {
+    "texto": "Asegurar el cumplimiento íntegro y la financiación suficiente de la Ley ELA para que las personas con ELA y otros procesos de alta complejidad reciban las prestaciones y apoyos reconocidos.…",
+    "pagina": 33,
+    "compromiso": "firme",
+    "id": "M0188"
+   }
+  ],
+  "credito": {
+   "fichero": "María_Isabel_Vaquero_Montero.jpg",
+   "autor": "EAJ-PNV Gipuzkoa",
+   "licencia": "CC BY-SA 4.0",
+   "pagina": "https://commons.wikimedia.org/wiki/File:Mar%C3%ADa_Isabel_Vaquero_Montero.jpg"
+  }
+ }
+]

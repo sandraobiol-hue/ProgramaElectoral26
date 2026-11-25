@@ -1,0 +1,488 @@
+<meta charset="utf-8">
+<title>Afinidad entre programas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#f6f4ef; --panel:#fffdf8; --fg:#1e2328; --muted:#5d666e; --line:#d9d4c8;
+  --accent:#1f6f78; --on-accent:#ffffff; --accent-soft:#d5e8ea; --warn:#9a5b13; --warn-bg:#f7ead6;
+  --edge:#1f6f78; --node:#2b3a42; --node-text:#ffffff; --hl:#c2410c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14181b; --panel:#1b2125; --fg:#e8e6df; --muted:#9aa3a9; --line:#2f373c;
+    --accent:#58b8c3; --on-accent:#0b1a1d; --accent-soft:#1f3a3f; --warn:#e3b36b; --warn-bg:#33291a;
+    --edge:#58b8c3; --node:#cfd8dc; --node-text:#14181b; --hl:#fb923c; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14181b; --panel:#1b2125; --fg:#e8e6df; --muted:#9aa3a9; --line:#2f373c;
+  --accent:#58b8c3; --on-accent:#0b1a1d; --accent-soft:#1f3a3f; --warn:#e3b36b; --warn-bg:#33291a;
+  --edge:#58b8c3; --node:#cfd8dc; --node-text:#14181b; --hl:#fb923c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:"Space Grotesk",Inter,system-ui,sans-serif;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:30px;font-weight:600}
+h2{font-size:21px;font-weight:600}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{color:var(--muted);max-width:68ch}
+.kicker{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.note{background:var(--warn-bg);color:var(--fg);border-left:4px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:14px}
+.controls{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:5px;min-width:0}
+.ctl label,.ctl .lab{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+select,input[type=range]{font:inherit;color:var(--fg);accent-color:var(--accent)}
+.stack{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+select{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;max-width:100%}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;background:var(--bg);color:var(--fg);border:0;padding:7px 12px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px}
+@media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
+svg{display:block;max-width:100%;height:auto}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:6px 8px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.small{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:12px;color:var(--muted)}
+.bar{display:inline-block;height:7px;border-radius:4px;background:var(--accent);vertical-align:middle}
+.hm td.cell{text-align:center;font-variant-numeric:tabular-nums;font-size:12px;padding:6px 3px;min-width:46px;border:1px solid var(--bg)}
+.hm th.rot{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;padding:6px 2px;text-align:left}
+.hm th.rowh{text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--fg);white-space:nowrap}
+.edge-hit{cursor:pointer}
+.node{cursor:pointer}
+ul.clean{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+footer{font-size:12.5px;color:var(--muted)}
+.enl{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+a.chip-link{display:inline-block;color:var(--on-accent);background:var(--accent);text-decoration:none;font-weight:600;font-size:13px;padding:7px 13px;border-radius:999px}
+a.chip-link:hover{filter:brightness(1.08)}
+a.chip-link:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <div class="kicker">Elecciones generales · 11 programas · MARPOR</div>
+    <h1>Afinidad entre programas electorales</h1>
+    <p class="lede">Cuánto se parecen los programas en <strong>qué temas enfatizan</strong>, medido sobre el porcentaje de cuasi-frases codificadas en cada una de las 56 categorías del Manifesto Project. Es una descripción del contenido codificado: no dice qué partidos son afines en ideas ni qué coaliciones son posibles.</p>
+  </header>
+
+  <div class="card">
+    <div class="controls">
+      <div class="ctl"><span class="lab">Versión</span>
+        <div class="seg" id="seg-version">
+          <button data-v="con301" aria-pressed="true">Con 301 (principal)</button>
+          <button data-v="sin301" aria-pressed="false">Sin 301 (contraste)</button>
+        </div>
+      </div>
+      <div class="ctl"><label for="sel-medida">Medida</label><select id="sel-medida"></select></div>
+      <div class="ctl"><span class="lab">Aristas</span>
+        <div class="seg" id="seg-modo">
+          <button data-m="k" aria-pressed="true">Vecinos más afines</button>
+          <button data-m="thr" aria-pressed="false">Umbral</button>
+        </div>
+      </div>
+      <div class="ctl" id="ctl-k"><label for="rng-k">Vecinos por partido: <span id="v-k">2</span></label><input id="rng-k" type="range" min="1" max="4" step="1" value="2"></div>
+      <div class="ctl" id="ctl-thr" hidden><label for="rng-thr">Similitud mínima: <span id="v-thr"></span></label><input id="rng-thr" type="range" step="0.005"></div>
+    </div>
+    <p class="small" id="desc-version"></p>
+  </div>
+
+  <section class="card" aria-labelledby="h-grafo">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <h2 id="h-grafo">Grafo de afinidad</h2>
+      <p class="small">Cada partido es un nodo; la distancia entre nodos aproxima la disimilitud (mapa 2D, los ejes no tienen significado). Una arista une a cada partido con sus vecinos más afines; cuanto más gruesa, mayor la similitud. Pulsa una arista o un nodo para ver el detalle.</p>
+    </div>
+    <div class="stack">
+      <div style="min-width:0">
+        <svg id="grafo" viewBox="0 0 900 470" role="img" aria-label="Grafo de afinidad entre los once programas"></svg>
+        <div class="legend" style="margin-top:8px">
+          <span>Tamaño del nodo = nº de cuasi-frases del programa</span>
+          <span>Etiqueta «ca» / «gl» = programa en catalán / gallego</span>
+          <span id="mds-info"></span>
+        </div>
+      </div>
+      <div id="detalle" style="min-width:0"></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-robustos">
+    <h2 id="h-robustos">Qué se mantiene en cualquier configuración</h2>
+    <div id="robustos"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-vecinos">
+    <h2 id="h-vecinos">Vecinos más afines de cada partido</h2>
+    <p class="small">Entre corchetes, el intervalo del 95 % obtenido remuestreando las cuasi-frases de cada programa (2.000 repeticiones). «Estabilidad» es el porcentaje de remuestreos en los que ese partido sigue siendo el vecino más afín.</p>
+    <div class="scroll"><table id="tabla-vecinos"></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-matriz">
+    <h2 id="h-matriz">Matriz de similitud</h2>
+    <p class="small">Partidos ordenados según la agrupación jerárquica. El tono se escala entre el par menos y el más parecido de la medida elegida.</p>
+    <div class="scroll"><table class="hm" id="matriz"></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-dendro">
+    <h2 id="h-dendro">Agrupación jerárquica</h2>
+    <p class="small">Enlace promedio sobre la distancia (1 − similitud). Se unen antes los programas más parecidos; la altura de cada unión es la distancia media entre sus grupos.</p>
+    <div class="scroll"><svg id="dendro" viewBox="0 0 720 360" role="img" aria-label="Dendrograma de los once programas"></svg></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-cambio">
+    <h2 id="h-cambio">Qué cambia al quitar la categoría 301</h2>
+    <p class="small">La 301 (Descentralización) pesa entre el 11 % y el 27 % en los programas de ámbito territorial. Diferencia de similitud «sin 301» menos «con 301» para la medida elegida.</p>
+    <div id="cambio"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-lim">
+    <h2 id="h-lim">Límites que conviene tener presentes</h2>
+    <ul class="clean">
+      <li><strong>Mide énfasis, no posición.</strong> La mayoría de categorías MARPOR solo registran de qué se habla; dos programas pueden hablar mucho de lo mismo y defender cosas opuestas.</li>
+      <li><strong>El coseno tiene un suelo alto.</strong> Como todos los perfiles son no negativos, incluso los programas más distintos puntúan cerca de 0,5. Por eso se ofrece también el coseno centrado en el perfil medio, que sí toma valores negativos.</li>
+      <li><strong>El intervalo solo recoge el azar del muestreo de cuasi-frases</strong>, no los errores de segmentación o codificación. Los programas pequeños (VOX 398, EH Bildu 435, Coalición Canaria 518, PNV 527) tienen intervalos más anchos: cada cuasi-frase pesa entre 0,19 y 0,25 puntos.</li>
+      <li><strong>Catalán y gallego (ERC, Junts, BNG):</strong> el control del corte de cuasi-frases es más débil que en castellano y los programas se segmentaron con criterio común aplicado por agentes.</li>
+      <li><strong>Sin 301</strong> cada programa se renormaliza sobre las cuasi-frases restantes; en Coalición Canaria quedan 373 y en Junts 1.596, por lo que su perfil cambia mucho.</li>
+      <li><strong>Neutralidad:</strong> la afinidad no valora a ningún partido. Es un parecido entre perfiles de contenido codificado.</li>
+    </ul>
+  </section>
+
+  <footer>Fuente: <code>*_ponderacion.json</code> de los 11 programas · script <code>afinidad-programas.py</code> · semilla del remuestreo 20261123.</footer>
+</div>
+
+<script>
+const D = /*DATA*/null;
+const P = D.partidos, N = P.length;
+const SHORT = {psoe:"PSOE",pp:"PP",vox:"VOX",frente_amplio:"Frente Amplio",podemos:"Podemos",coalicion:"Coalición Canaria",erc:"ERC",junts:"Junts",bng:"BNG",bildu:"EH Bildu",pnv:"PNV"};
+const nm = i => SHORT[P[i].prefijo];
+const fmt = (x,d=3)=> x.toLocaleString("es-ES",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct = x => Math.round(x*100)+" %";
+const MEDS = Object.keys(D.medidas);
+const NS = "http://www.w3.org/2000/svg";
+const S = {v:"con301", m:"coseno", modo:"k", k:2, thr:0, sel:null};
+const DESC = {
+  con301:"Versión principal: perfil completo de 56 categorías por programa.",
+  sin301:"Contraste: se excluye la categoría 301 y cada perfil se renormaliza con las cuasi-frases restantes."
+};
+const M = () => D.versiones[S.v].medidas[S.m];
+const Mv = (v,m) => D.versiones[v].medidas[m];
+
+function el(tag, attrs={}, text){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(text!==undefined) e.textContent = text;
+  return e;
+}
+function h(tag, attrs={}, html){
+  const e = document.createElement(tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  if(html!==undefined) e.innerHTML = html;
+  return e;
+}
+function rank(i){ // vecinos de i ordenados
+  return M().vecinos[P[i].prefijo];
+}
+const idx = pref => P.findIndex(p=>p.prefijo===pref);
+
+/* ---------- posiciones alineadas con la referencia (con301/coseno) ---------- */
+const REF = Mv("con301","coseno").posiciones_mds;
+function posiciones(){
+  const X = M().posiciones_mds.map(r=>r.slice());
+  let best=null, bs=-1e9;
+  for(const sx of [1,-1]) for(const sy of [1,-1]) for(const sw of [false,true]){
+    let s=0;
+    for(let i=0;i<N;i++){
+      let a=X[i][0]*sx, b=X[i][1]*sy; if(sw){[a,b]=[b,a];}
+      s += a*REF[i][0] + b*REF[i][1];
+    }
+    if(s>bs){bs=s;best=[sx,sy,sw];}
+  }
+  return X.map(r=>{let a=r[0]*best[0], b=r[1]*best[1]; if(best[2])[a,b]=[b,a]; return [a,b];});
+}
+
+/* ---------- aristas ---------- */
+function aristas(){
+  const Sm = M().matriz, set = new Map();
+  if(S.modo==="k"){
+    for(let i=0;i<N;i++){
+      const v = rank(i).slice(0,S.k);
+      for(const x of v){ const j=idx(x.con); const a=Math.min(i,j), b=Math.max(i,j); set.set(a+"-"+b,[a,b]); }
+    }
+  } else {
+    for(let i=0;i<N;i++) for(let j=i+1;j<N;j++) if(Sm[i][j]>=S.thr) set.set(i+"-"+j,[i,j]);
+  }
+  return [...set.values()];
+}
+
+/* ---------- grafo ---------- */
+function dibujaGrafo(){
+  const svg = document.getElementById("grafo"); svg.innerHTML="";
+  const X = posiciones(), m = M(), rg = m.rango_pares;
+  const W=900,H=470,mx=120,my=62;
+  const xs_=X.map(r=>r[0]), ys_=X.map(r=>r[1]);
+  const x0_=Math.min(...xs_), x1_=Math.max(...xs_), y0_=Math.min(...ys_), y1_=Math.max(...ys_);
+  const sc=Math.min((W-2*mx)/((x1_-x0_)||1),(H-2*my)/((y1_-y0_)||1));
+  const ox=(W-sc*(x1_-x0_))/2, oy=(H-sc*(y1_-y0_))/2;
+  const px = i=> ox + (X[i][0]-x0_)*sc;
+  const py = i=> oy + (y1_-X[i][1])*sc;
+  const rad = i=> 9 + 9*Math.sqrt(P[i].cuasifrases/2218);
+  const norm = s => Math.max(0,Math.min(1,(s-rg[0])/(rg[1]-rg[0]||1)));
+  const E = aristas();
+  const gE = el("g"); svg.appendChild(gE);
+  for(const [a,b] of E){
+    const s=m.matriz[a][b], w=1.2+7*norm(s);
+    const sel = S.sel && S.sel.t==="edge" && S.sel.i===a && S.sel.j===b;
+    const l = el("line",{x1:px(a),y1:py(a),x2:px(b),y2:py(b),stroke: sel?"var(--hl)":"var(--edge)","stroke-width":sel?w+2:w,"stroke-linecap":"round",opacity: sel?1:.55});
+    gE.appendChild(l);
+    const hit = el("line",{x1:px(a),y1:py(a),x2:px(b),y2:py(b),stroke:"transparent","stroke-width":16,class:"edge-hit",tabindex:0,role:"button","aria-label":`Arista ${nm(a)} – ${nm(b)}, similitud ${fmt(s)}`});
+    const t = el("title",{},`${nm(a)} – ${nm(b)}: ${fmt(s)}`); hit.appendChild(t);
+    hit.addEventListener("click",()=>{S.sel={t:"edge",i:a,j:b};render();});
+    hit.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();S.sel={t:"edge",i:a,j:b};render();}});
+    gE.appendChild(hit);
+  }
+  // etiquetas: colocacion voraz (abajo, arriba, derecha, izquierda)
+  const placed=[], gN=el("g"), gT=el("g"); svg.appendChild(gN); svg.appendChild(gT);
+  const boxes=[];
+  const order=[...Array(N).keys()];
+  for(const i of order){
+    const lab = nm(i)+(P[i].idioma!=="es"?" · "+P[i].idioma:"");
+    const w = lab.length*7.2+8, r=rad(i), cx=px(i), cy=py(i);
+    const cands=[
+      {x:cx-w/2,y:cy+r+3,anchor:"middle",tx:cx,ty:cy+r+16},
+      {x:cx-w/2,y:cy-r-19,anchor:"middle",tx:cx,ty:cy-r-6},
+      {x:cx+r+4,y:cy-9,anchor:"start",tx:cx+r+6,ty:cy+4},
+      {x:cx-r-4-w,y:cy-9,anchor:"end",tx:cx-r-6,ty:cy+4}
+    ];
+    let pick=cands[0],bestOv=1e9;
+    for(const c of cands){
+      const bx={x:c.x,y:c.y,w:w,h:16};
+      let ov=0;
+      for(const o of boxes){const dx=Math.min(bx.x+bx.w,o.x+o.w)-Math.max(bx.x,o.x), dy=Math.min(bx.y+bx.h,o.y+o.h)-Math.max(bx.y,o.y); if(dx>0&&dy>0) ov+=dx*dy;}
+      for(let j=0;j<N;j++){ if(j===i)continue; const rj=rad(j), dx=Math.min(bx.x+bx.w,px(j)+rj)-Math.max(bx.x,px(j)-rj), dy=Math.min(bx.y+bx.h,py(j)+rj)-Math.max(bx.y,py(j)-rj); if(dx>0&&dy>0) ov+=dx*dy*2; }
+      for(const [a,b] of E){
+        for(let s=0;s<=20;s++){ const qx=px(a)+(px(b)-px(a))*s/20, qy=py(a)+(py(b)-py(a))*s/20;
+          if(qx>bx.x-2&&qx<bx.x+bx.w+2&&qy>bx.y-2&&qy<bx.y+bx.h+2) ov+=60; }
+      }
+      if(bx.x<2||bx.x+bx.w>W-2||bx.y<2||bx.y+bx.h>H-2) ov+=1e4;
+      if(ov<bestOv){bestOv=ov;pick=c;}
+    }
+    boxes.push({x:pick.x,y:pick.y,w:w,h:16});
+    const selN = S.sel && S.sel.t==="node" && S.sel.i===i;
+    const c = el("circle",{cx:cx,cy:cy,r:r,fill:"var(--node)",stroke: selN?"var(--hl)":"var(--panel)","stroke-width":selN?4:2,class:"node",tabindex:0,role:"button","aria-label":`Partido ${nm(i)}`});
+    c.appendChild(el("title",{},`${nm(i)} · ${P[i].cuasifrases} cuasi-frases`));
+    c.addEventListener("click",()=>{S.sel={t:"node",i:i};render();});
+    c.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();S.sel={t:"node",i:i};render();}});
+    gN.appendChild(c);
+    const t = el("text",{x:pick.tx,y:pick.ty,"text-anchor":pick.anchor,"font-size":12.5,"font-weight":600,fill:"var(--fg)","paint-order":"stroke",stroke:"var(--panel)","stroke-width":3,"stroke-linejoin":"round"},lab);
+    gT.appendChild(t);
+  }
+  document.getElementById("mds-info").textContent = `Fidelidad del mapa: correlación ${fmt(m.mds_correlacion_distancias,2)} entre distancias reales y del plano`;
+}
+
+/* ---------- panel de detalle ---------- */
+function otraVersion(){ return S.v==="con301"?"sin301":"con301"; }
+function enlFicha(i){ const q=(window.__qs?window.__qs():""); return `<a class="chip-link" href="partido_${P[i].prefijo}.html${q}">Análisis completo de ${nm(i)} →</a>`; }
+function detalle(){
+  const box=document.getElementById("detalle"); box.innerHTML="";
+  const m=M();
+  if(!S.sel){
+    box.appendChild(h("div",{class:"note"},"Pulsa una <strong>arista</strong> para ver cuánto se parecen dos programas y qué categorías lo explican, o un <strong>nodo</strong> para ver todos los parecidos de un partido."));
+    return;
+  }
+  if(S.sel.t==="edge"){
+    const a=S.sel.i,b=S.sel.j, s=m.matriz[a][b];
+    const ra=rank(a).find(x=>x.con===P[b].prefijo), rb=rank(b).find(x=>x.con===P[a].prefijo);
+    const pos = (i,j)=> rank(i).findIndex(x=>x.con===P[j].prefijo)+1;
+    const o = Mv(otraVersion(),S.m).matriz[a][b];
+    let html=`<h3>${nm(a)} — ${nm(b)}</h3>
+      <p style="font-size:26px;font-family:'Space Grotesk',sans-serif;font-weight:600">${fmt(s)}</p>
+      <p class="small">Intervalo del 95 %: ${fmt(ra.ic_bajo)} – ${fmt(ra.ic_alto)}</p>
+      <ul class="clean small" style="margin-top:6px">
+        <li>${nm(b)} es el vecino nº ${pos(a,b)} de ${nm(a)}; es el más afín en el ${pct(ra.p_top1)} de los remuestreos.</li>
+        <li>${nm(a)} es el vecino nº ${pos(b,a)} de ${nm(b)}; es el más afín en el ${pct(rb.p_top1)} de los remuestreos.</li>
+        <li>${S.v==="con301"?"Sin":"Con"} 301: ${fmt(o)} (${o-s>=0?"+":"−"}${fmt(Math.abs(o-s))}).</li>
+      </ul>`;
+    const key = P[a].prefijo+"|"+P[b].prefijo, key2=P[b].prefijo+"|"+P[a].prefijo;
+    const c = m.contribuciones[key]||m.contribuciones[key2];
+    if(c && c.length){
+      const tot = c.reduce((q,x)=>q+x.aporte,0);
+      html+=`<h3 style="margin-top:10px">Categorías que más aportan al parecido</h3>
+      <div class="scroll"><table><tr><th>Cat.</th><th class="n">% ${nm(a)}</th><th class="n">% ${nm(b)}</th><th class="n">Peso</th></tr>`;
+      for(const x of c){
+        const [pa,pb] = m.contribuciones[key] ? [x.a,x.b] : [x.b,x.a];
+        html+=`<tr><td><strong>${x.cat}</strong> <span class="small">${x.nombre}</span></td><td class="n">${fmt(pa,1)}</td><td class="n">${fmt(pb,1)}</td><td class="n">${fmt(x.aporte/s*100,0)} %</td></tr>`;
+      }
+      html+=`</table></div><p class="small">Peso = parte de la similitud que aporta esa categoría (las mostradas suman el ${fmt(tot/s*100,0)} %). Parecerse en una categoría muy frecuente pesa más.</p>`;
+    } else {
+      html+=`<p class="small" style="margin-top:8px">Esta medida no se descompone por categorías. Elige «Coseno» o «Solapamiento» para ver qué aporta al parecido.</p>`;
+    }
+    html+=`<p class="enl">${enlFicha(a)} ${enlFicha(b)}</p>`;
+    box.innerHTML=html;
+  } else {
+    const i=S.sel.i, v=rank(i);
+    let html=`<h3>${nm(i)}</h3>
+      <p class="small">${P[i].cuasifrases.toLocaleString("es-ES")} cuasi-frases · programa en ${({es:"castellano",ca:"catalán",gl:"gallego"})[P[i].idioma]} · cada cuasi-frase pesa ${fmt(P[i].pp_por_cuasifrase,2)} puntos</p>
+      <div class="scroll"><table><tr><th>Partido</th><th class="n">Similitud</th><th>95 %</th><th class="n">Más afín</th></tr>`;
+    for(const x of v){
+      const j=idx(x.con);
+      html+=`<tr><td><a href="#" data-e="${i},${j}" style="color:var(--accent)">${nm(j)}</a></td><td class="n">${fmt(x.sim)}</td><td class="small">${fmt(x.ic_bajo,2)}–${fmt(x.ic_alto,2)}</td><td class="n">${pct(x.p_top1)}</td></tr>`;
+    }
+    html+=`</table></div><p class="enl">${enlFicha(i)}</p>`;
+    box.innerHTML=html;
+    box.querySelectorAll("a[data-e]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();const [x,y]=a.dataset.e.split(",").map(Number);S.sel={t:"edge",i:Math.min(x,y),j:Math.max(x,y)};render();}));
+  }
+}
+
+/* ---------- que se mantiene ---------- */
+function robustos(){
+  const out=[]; const combos=[];
+  for(const v of ["con301","sin301"]) for(const m of MEDS) combos.push([v,m]);
+  const pares=new Map();
+  for(let i=0;i<N;i++){
+    for(const [v,m] of combos){
+      const top=Mv(v,m).vecinos[P[i].prefijo][0];
+      const j=idx(top.con);
+      const key=Math.min(i,j)+"-"+Math.max(i,j);
+      if(!pares.has(key)) pares.set(key,{a:Math.min(i,j),b:Math.max(i,j),n:0,minp:1,sims:[]});
+    }
+  }
+  for(const p of pares.values()){
+    let ok=0, minp=1;
+    for(const [v,m] of combos){
+      const mm=Mv(v,m);
+      const x=mm.vecinos[P[p.a].prefijo].find(q=>q.con===P[p.b].prefijo), y=mm.vecinos[P[p.b].prefijo].find(q=>q.con===P[p.a].prefijo);
+      const q=Math.min(x.p_top1,y.p_top1);
+      if(q>=0.8) ok++;
+      minp=Math.min(minp,q);
+      p.sims.push(x.sim);
+    }
+    p.ok=ok; p.minp=minp;
+  }
+  const lista=[...pares.values()].filter(p=>p.ok===combos.length).sort((x,y)=>y.minp-x.minp);
+  const host=document.getElementById("robustos");
+  let html=`<p class="small">Pares que son el vecino más afín uno del otro en al menos el 80 % de los remuestreos, en las ${combos.length} combinaciones de versión (con/sin 301) y medida:</p>`;
+  if(lista.length){
+    html+=`<ul class="clean">`+lista.map(p=>`<li><strong>${nm(p.a)} — ${nm(p.b)}</strong> <span class="small">· estabilidad mínima ${pct(p.minp)}</span></li>`).join("")+`</ul>`;
+  } else html+=`<p>Ningún par cumple la condición en todas las combinaciones.</p>`;
+  // pares que cumplen en la version/medida actual pero no en todas
+  const parciales=[...pares.values()].filter(p=>p.ok>0&&p.ok<combos.length).sort((x,y)=>y.ok-x.ok);
+  if(parciales.length){
+    html+=`<p class="small" style="margin-top:8px">Pares estables solo en parte de las combinaciones (dependen de la medida o de incluir la 301): `+parciales.map(p=>`${nm(p.a)} — ${nm(p.b)} (${p.ok}/${combos.length})`).join("; ")+`.</p>`;
+  }
+  host.innerHTML=html;
+}
+
+/* ---------- tabla de vecinos ---------- */
+function tablaVecinos(){
+  const t=document.getElementById("tabla-vecinos");
+  let html=`<tr><th>Partido</th><th>1.º</th><th>2.º</th><th>3.º</th></tr>`;
+  for(let i=0;i<N;i++){
+    const v=rank(i).slice(0,3);
+    html+=`<tr><td><strong>${nm(i)}</strong></td>`+v.map(x=>`<td>${nm(idx(x.con))}<br><span class="small">${fmt(x.sim)} [${fmt(x.ic_bajo)}–${fmt(x.ic_alto)}]</span><br><span class="bar" style="width:${Math.round(x.p_top1*60)}px"></span> <span class="small">${pct(x.p_top1)}</span></td>`).join("")+`</tr>`;
+  }
+  t.innerHTML=html;
+}
+
+/* ---------- matriz ---------- */
+function ordenHojas(){ return M().dendrograma.orden_hojas.map(idx); }
+function matriz(){
+  const m=M(), ord=ordenHojas(), rg=m.rango_pares, t=document.getElementById("matriz");
+  let html=`<tr><th></th>`+ord.map(j=>`<th class="rot">${nm(j)}</th>`).join("")+`</tr>`;
+  for(const i of ord){
+    html+=`<tr><th class="rowh">${nm(i)}</th>`;
+    for(const j of ord){
+      if(i===j){html+=`<td class="cell" style="color:var(--muted)">—</td>`;continue;}
+      const s=m.matriz[i][j], q=Math.max(0,Math.min(1,(s-rg[0])/(rg[1]-rg[0]||1))), pc=Math.round(q*88);
+      const dark = pc>48;
+      html+=`<td class="cell" title="${nm(i)} – ${nm(j)}: ${fmt(s)} [${fmt(m.ic_bajo[i][j])}–${fmt(m.ic_alto[i][j])}]" style="background:color-mix(in srgb,var(--accent) ${pc}%,var(--panel));color:${dark?"var(--on-accent)":"var(--fg)"}">${fmt(s,2)}</td>`;
+    }
+    html+=`</tr>`;
+  }
+  t.innerHTML=html;
+}
+
+/* ---------- dendrograma ---------- */
+function dendro(){
+  const svg=document.getElementById("dendro"); svg.innerHTML="";
+  const d=M().dendrograma, F=d.fusiones, maxH=Math.max(...F.map(f=>f.altura))||1;
+  const nodes={}; F.forEach(f=>nodes[f.nuevo]=f);
+  const ord=d.orden_hojas.map(idx), ypos={}; ord.forEach((i,k)=>ypos[i]=30+k*28);
+  const x0=150, x1=690, xs=h=> x1-(h/maxH)*(x1-x0);
+  const pos={}; // id -> {x,y}
+  function walk(id){
+    if(id<N){pos[id]={x:x1,y:ypos[id]};return pos[id];}
+    const f=nodes[id], a=walk(f.a), b=walk(f.b), x=xs(f.altura);
+    svg.appendChild(el("path",{d:`M${a.x},${a.y} H${x} V${b.y} H${b.x}`,fill:"none",stroke:"var(--edge)","stroke-width":1.8,"stroke-linejoin":"round"}));
+    pos[id]={x:x,y:(a.y+b.y)/2};
+    svg.appendChild(el("text",{x:x-5,y:(a.y+b.y)/2-6,"text-anchor":"end","font-size":10.5,fill:"var(--muted)","paint-order":"stroke",stroke:"var(--panel)","stroke-width":3},fmt(f.altura,2)));
+    return pos[id];
+  }
+  walk(F[F.length-1].nuevo);
+  for(const i of ord){
+    svg.appendChild(el("text",{x:x1+8,y:ypos[i]+4,"font-size":12.5,"font-weight":600,fill:"var(--fg)"},nm(i)));
+  }
+  svg.setAttribute("viewBox",`0 0 ${x1+150} ${30+N*28}`);
+}
+
+/* ---------- cambio sin 301 ---------- */
+function cambio(){
+  const a=Mv("con301",S.m).matriz, b=Mv("sin301",S.m).matriz, L=[];
+  for(let i=0;i<N;i++) for(let j=i+1;j<N;j++) L.push({i,j,c:a[i][j],s:b[i][j],d:b[i][j]-a[i][j]});
+  L.sort((x,y)=>y.d-x.d);
+  const fila=x=>`<tr><td>${nm(x.i)} — ${nm(x.j)}</td><td class="n">${fmt(x.c)}</td><td class="n">${fmt(x.s)}</td><td class="n"><strong>${x.d>=0?"+":"−"}${fmt(Math.abs(x.d))}</strong></td></tr>`;
+  const cabe=`<tr><th>Par</th><th class="n">Con 301</th><th class="n">Sin 301</th><th class="n">Cambio</th></tr>`;
+  const cambios=[];
+  for(let i=0;i<N;i++){
+    const c=Mv("con301",S.m).vecinos[P[i].prefijo][0].con, s=Mv("sin301",S.m).vecinos[P[i].prefijo][0].con;
+    if(c!==s) cambios.push(`${nm(i)}: ${nm(idx(c))} → ${nm(idx(s))}`);
+  }
+  const host=document.getElementById("cambio");
+  host.innerHTML=`<div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    <div class="scroll"><h3 style="margin-bottom:6px">Pares que más suben</h3><table>${cabe}${L.slice(0,6).map(fila).join("")}</table></div>
+    <div class="scroll"><h3 style="margin-bottom:6px">Pares que más bajan</h3><table>${cabe}${L.slice(-6).reverse().map(fila).join("")}</table></div></div>
+    <p class="small" style="margin-top:6px">${cambios.length?`Cambia el vecino más afín de: ${cambios.join("; ")}.`:"El vecino más afín de cada partido no cambia."}</p>`;
+}
+
+/* ---------- ciclo ---------- */
+function render(){
+  document.getElementById("desc-version").textContent=DESC[S.v];
+  const rg=M().rango_pares, r=document.getElementById("rng-thr");
+  r.min=rg[0].toFixed(3); r.max=rg[1].toFixed(3);
+  if(!S.thr||S.thr<rg[0]||S.thr>rg[1]) S.thr = rg[0]+(rg[1]-rg[0])*0.6;
+  r.value=S.thr; document.getElementById("v-thr").textContent=fmt(S.thr);
+  document.getElementById("v-k").textContent=S.k;
+  document.getElementById("ctl-k").hidden = S.modo!=="k";
+  document.getElementById("ctl-thr").hidden = S.modo!=="thr";
+  dibujaGrafo(); detalle(); tablaVecinos(); matriz(); dendro(); cambio();
+}
+function init(){
+  const sel=document.getElementById("sel-medida");
+  MEDS.forEach(k=>sel.appendChild(h("option",{value:k},D.medidas[k])));
+  sel.value=S.m;
+  sel.addEventListener("change",()=>{S.m=sel.value;S.thr=0;render();});
+  document.querySelectorAll("#seg-version button").forEach(b=>b.addEventListener("click",()=>{
+    S.v=b.dataset.v; S.thr=0;
+    document.querySelectorAll("#seg-version button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    render();}));
+  document.querySelectorAll("#seg-modo button").forEach(b=>b.addEventListener("click",()=>{
+    S.modo=b.dataset.m;
+    document.querySelectorAll("#seg-modo button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    render();}));
+  document.getElementById("rng-k").addEventListener("input",e=>{S.k=+e.target.value;render();});
+  document.getElementById("rng-thr").addEventListener("input",e=>{S.thr=+e.target.value;render();});
+  robustos(); render();
+}
+init();
+</script>
